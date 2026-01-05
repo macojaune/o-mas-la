@@ -74,8 +74,10 @@ export function Sidebar({
           <ScrollArea className="">
             <div className="space-y-2">{renderGroups()}</div>
           </ScrollArea>
-          <div className="mx-auto mb-4 mt-auto flex flex-row items-center justify-between gap-3 rounded-lg bg-primary/20 p-2 text-black backdrop-blur-sm">
-            <div className="w-12 md:w-1/4">
+          <div className="mx-auto mb-4 mt-auto flex flex-row items-center justify-between gap-3  p-2 text-black backdrop-blur-sm">
+            <SponsorBlock />
+
+            {/*<div className="w-12 md:w-1/4">
               <a
                 href="https://rci.fm/guadeloupe/carnaval"
                 target="_blank"
@@ -91,7 +93,7 @@ export function Sidebar({
             </div>
             <span className="text-sm text-white">
               Merci de soutenir le projet durant les jours gras.
-            </span>
+            </span>*/}
           </div>
           <AddPositionButton />
         </div>

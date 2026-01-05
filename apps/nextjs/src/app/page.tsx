@@ -34,7 +34,7 @@ export default function HomePage() {
             height={1638}
             className="object-fill object-center md:object-cover"
           />
-          // Hero section gradient
+          {/*// Hero section gradient*/}
           <div className="backdrop-blur-xs absolute inset-0 bg-gradient-to-b from-primary/10 to-primary/40" />
         </div>
         <div className="relative z-10 mx-auto max-w-4xl px-4 text-center">
@@ -53,7 +53,7 @@ export default function HomePage() {
             </Button>
           </Link>
           {/* New Sponsor div */}
-          <div className="mt-44 flex flex-col items-center justify-center gap-3 rounded-lg p-4 backdrop-blur-sm md:mt-12 md:flex-row">
+          {/*<div className="mt-44 flex flex-col items-center justify-center gap-3 rounded-lg p-4 backdrop-blur-sm md:mt-12 md:flex-row">
             <div className="text-base font-semibold text-white dark:text-gray-300">
               Merci à
             </div>
@@ -74,7 +74,7 @@ export default function HomePage() {
             <div className="text-base font-semibold text-white dark:text-gray-300">
               de soutenir le projet durant les jours gras.
             </div>
-          </div>
+          </div>*/}
         </div>
       </section>
       {/* How it Works Section */}
