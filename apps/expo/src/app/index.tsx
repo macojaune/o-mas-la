@@ -1,113 +1,283 @@
-import { useCallback } from "react"
-import { Image, Pressable, ScrollView, Text, View } from "react-native"
+import { useMemo, useState } from "react"
+import {
+  ActivityIndicator,
+  Image,
+  Pressable,
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  TextInput,
+  View,
+} from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
-import * as Linking from "expo-linking"
-import { Redirect, Stack, useRouter } from "expo-router"
-import logoDarkImg from "assets/logo-dark.png"
-import logoImg from "assets/logo.png"
+import { useRouter } from "expo-router"
 
-import { useGroupStore } from "~/lib/store"
-import { useColorScheme } from "~/lib/useColorScheme"
+import GroupMap from "~/components/group-map"
+import GroupRow from "~/components/group-row"
+import { useCatalog } from "~/lib/catalog"
+import { normalizeSearch } from "~/lib/catalog-model"
+import { Button, Icon, Label, Notice, styles, usePalette } from "~/theme/ui"
+import logoImage from "../../assets/logo.png"
 
-export default function IntroScreen() {
+export default function PublicHome() {
+  const c = usePalette()
   const router = useRouter()
-  const { hasSeenIntro, setHasSeenIntro } = useGroupStore()
-
-  const handleContinue = useCallback(async () => {
-    setHasSeenIntro(true)
-    router.replace("/home")
-  }, [router, setHasSeenIntro])
-
-  const { isDarkColorScheme } = useColorScheme()
-
-  if (hasSeenIntro) return <Redirect href="/home" />
-
+  const catalog = useCatalog()
+  const [search, setSearch] = useState("")
+  const [mode, setMode] = useState<"list" | "map">("list")
+  const groups = useMemo(
+    () =>
+      catalog.data?.groups
+        .filter((group) =>
+          normalizeSearch(group.title).includes(normalizeSearch(search)),
+        )
+        .sort((a, b) => a.title.localeCompare(b.title, "fr")) ?? [],
+    [catalog.data, search],
+  )
+  const data = catalog.data
+  const open = (id: string) =>
+    router.push({ pathname: "/group/[id]", params: { id } })
   return (
-    <SafeAreaView className="bg-background">
-      <Stack.Screen options={{ headerShown: false }} />
-      <View className="flex h-full w-full flex-col items-stretch justify-between gap-4 bg-background px-4">
-        <View>
-          <Image
-            source={isDarkColorScheme ? logoDarkImg : logoImg}
-            className="mx-auto w-full"
-            resizeMode="contain"
-          />
-          <Text className="text-center text-xl font-semibold text-foreground">
-            L'appli carnavalier·es
-          </Text>
-        </View>
-        <ScrollView className="p-5 pt-16">
-          <Text className="mb-8 text-center text-xl font-bold text-foreground">
-            Bienvenue sur l'appli O Mas La ?
-          </Text>
-
-          <View className="mb-8">
-            <Text className="mb-3 text-2xl font-semibold text-foreground">
-              Cette appli est destinée aux carnavalier·es qui déboulent !{" "}
-            </Text>
-            <Text className="text-base leading-6 text-foreground">
-              Si tu veux juste suivre la position des groupes, rends toi sur le
-              site directement{" "}
-              <Text
-                onPress={() => Linking.openURL("https://omasla.fr/map")}
-                className="font-semibold text-foreground underline underline-offset-8 active:text-primary"
-              >
-                clique ici
-              </Text>
-            </Text>
-            <Text className="text-sm italic text-muted-foreground">
-              (Tu peux désinstaller l'application)
-            </Text>
-          </View>
-
-          <View className="mb-6">
-            <Text className="mb-3 text-lg font-semibold text-foreground">
-              Autorisations requises
-            </Text>
-            <Text className="mb-2 text-base leading-6 text-foreground">
-              Pour fonctionner correctement, l'application a besoin d'accéder à
-              ta position.
-            </Text>
-            <Text className="mb-2 ml-4 text-base leading-6 text-foreground">
-              Pense à bien sélectionner{" "}
-              <Text className="text-semibold">"Toujours"</Text> pour les deux
-              autorisations, sinon l'application ne pourra pas fonctionner en
-              arrière plan.
-            </Text>
-            <Text className="mb-1 ml-4 text-base leading-6 text-foreground">
-              Rassure-toi on accède à ta localisation uniquement quand TU le
-              décides ET pendant 3h max{" "}
-              <Text className="text-sm italic">(durée d'un déboulé moyen)</Text>
-            </Text>
-          </View>
-
-          <View className="mb-6">
-            <Text className="mb-3 text-lg font-semibold text-foreground">
-              Comment ça marche ?
-            </Text>
-            <Text className="mb-1 ml-2 text-base leading-6 text-foreground">
-              • Sélectionnez un groupe dans la liste
-            </Text>
-            <Text className="mb-1 ml-2 text-base leading-6 text-foreground">
-              • Appuyez sur le bouton de localisation pour partager ta position
-            </Text>
-            <Text className="mb-1 ml-2 text-base leading-6 text-foreground">
-              • Profite de ton mas !
-            </Text>
-          </View>
-          <Text className="text-center text-sm italic text-destructive">
-            Lis bien, tu ne verras cet écran qu'une seule fois
-          </Text>
-        </ScrollView>
+    <SafeAreaView
+      style={[styles.page, { backgroundColor: c.background }]}
+      edges={["top", "left", "right"]}
+    >
+      <View style={[s.header, { borderBottomColor: c.line }]}>
+        <Image
+          source={logoImage}
+          style={s.logo}
+          resizeMode="contain"
+          accessibilityLabel="O Mas La ?"
+        />
         <Pressable
-          onPress={handleContinue}
-          className="mt-auto w-full bg-primary px-4 py-8"
+          accessibilityRole="button"
+          accessibilityLabel="Mon espace"
+          onPress={() => router.push("/account")}
+          style={[s.account, { backgroundColor: c.surface }]}
         >
-          <Text className="text-center text-white dark:text-foreground">
-            C'est parti !
-          </Text>
+          <Icon name="person" color={c.ink} />
         </Pressable>
       </View>
+      <View style={[styles.content, { paddingBottom: 12, gap: 16 }]}>
+        <View style={{ gap: 8 }}>
+          <Label accessibilityRole="header" style={styles.title}>
+            Où est ton groupe ?
+          </Label>
+          <Label muted>Retrouve le mas, au bon endroit.</Label>
+        </View>
+        <View
+          style={[
+            s.search,
+            { backgroundColor: c.surface, borderColor: c.line },
+          ]}
+        >
+          <Icon name="search" color={c.muted} />
+          <TextInput
+            value={search}
+            onChangeText={setSearch}
+            accessibilityLabel="Rechercher un groupe"
+            placeholder="Le nom de ton groupe"
+            placeholderTextColor={c.muted}
+            style={[s.searchInput, { color: c.ink }]}
+            returnKeyType="search"
+            autoCorrect={false}
+            clearButtonMode="while-editing"
+          />
+          {search.length > 0 && (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Effacer la recherche"
+              onPress={() => setSearch("")}
+              hitSlop={12}
+            >
+              <Icon name="close" color={c.muted} size={18} />
+            </Pressable>
+          )}
+        </View>
+        {catalog.offline && (
+          <Notice tone="warning">
+            Hors ligne
+            {catalog.savedAt
+              ? ` · données chargées à ${new Date(catalog.savedAt).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}`
+              : " · aucune donnée chargée pour le moment"}
+            . Les positions continuent de vieillir.
+          </Notice>
+        )}
+        {catalog.error && <Notice tone="warning">{catalog.error}</Notice>}
+        <View style={styles.row}>
+          <View
+            accessibilityRole="tablist"
+            style={[
+              s.tabs,
+              { backgroundColor: c.surface, borderColor: c.line },
+            ]}
+          >
+            {(["list", "map"] as const).map((value) => (
+              <Pressable
+                key={value}
+                accessibilityRole="tab"
+                accessibilityState={{ selected: mode === value }}
+                onPress={() => setMode(value)}
+                style={[
+                  s.tab,
+                  { backgroundColor: mode === value ? c.ink : "transparent" },
+                ]}
+              >
+                <Icon
+                  name={value}
+                  color={mode === value ? c.background : c.muted}
+                  size={18}
+                />
+                <Label
+                  style={{
+                    fontSize: 14,
+                    fontWeight: "700",
+                    color: mode === value ? c.background : c.muted,
+                  }}
+                >
+                  {value === "list" ? "Liste" : "Carte"}
+                </Label>
+              </Pressable>
+            ))}
+          </View>
+          <Label muted style={{ marginLeft: "auto", fontSize: 13 }}>
+            {catalog.data
+              ? `${groups.length} groupe${groups.length > 1 ? "s" : ""}`
+              : ""}
+          </Label>
+        </View>
+      </View>
+      {mode === "map" && catalog.data ? (
+        <GroupMap
+          catalog={{ ...catalog.data, groups }}
+          now={catalog.now}
+          onSelect={(group) => open(group.id)}
+        />
+      ) : (
+        <ScrollView
+          keyboardShouldPersistTaps="handled"
+          contentContainerStyle={[
+            styles.content,
+            { paddingTop: 0, paddingBottom: 36 },
+          ]}
+          refreshControl={
+            <RefreshControl
+              refreshing={catalog.refreshing}
+              onRefresh={catalog.refresh}
+              tintColor={c.primary}
+              enabled={!catalog.offline}
+            />
+          }
+        >
+          {!catalog.loaded && (
+            <ActivityIndicator
+              color={c.primary}
+              style={{ marginTop: 40 }}
+              accessibilityLabel="Chargement des groupes"
+            />
+          )}
+          {catalog.loaded && groups.length === 0 && (
+            <View style={s.empty}>
+              <Icon name="search" color={c.muted} size={32} />
+              <Label style={styles.heading}>
+                {search
+                  ? "Aucun groupe à ce nom"
+                  : catalog.offline
+                    ? "Une connexion pour commencer"
+                    : catalog.error
+                      ? "Les groupes sont indisponibles"
+                      : "Les groupes arrivent ici"}
+              </Label>
+              <Label muted style={{ textAlign: "center" }}>
+                {search
+                  ? "Essaie un autre nom ou efface ta recherche."
+                  : catalog.offline
+                    ? "Charge une première fois la liste pour la retrouver ensuite hors ligne."
+                    : catalog.error
+                      ? "Réessaie la connexion au suivi pour charger la liste."
+                      : "Dès qu’ils seront référencés, tu pourras les retrouver, même sans position."}
+              </Label>
+              {search ? (
+                <Button
+                  title="Voir tous les groupes"
+                  variant="secondary"
+                  onPress={() => setSearch("")}
+                />
+              ) : (
+                <Button
+                  title="Actualiser"
+                  variant="secondary"
+                  busy={catalog.refreshing}
+                  disabled={catalog.offline}
+                  onPress={catalog.refresh}
+                />
+              )}
+            </View>
+          )}
+          {data && groups.length > 0 && (
+            <View>
+              {groups.map((group) => (
+                <GroupRow
+                  key={group.id}
+                  group={group}
+                  catalog={data}
+                  now={catalog.now}
+                  onPress={() => open(group.id)}
+                />
+              ))}
+              <Label
+                muted
+                style={{ fontSize: 12, lineHeight: 18, marginTop: 24 }}
+              >
+                Un groupe présent dans la liste n’est pas forcément suivi
+                aujourd’hui.
+              </Label>
+            </View>
+          )}
+        </ScrollView>
+      )}
     </SafeAreaView>
   )
 }
+const s = StyleSheet.create({
+  header: {
+    paddingHorizontal: 22,
+    paddingVertical: 10,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    borderBottomWidth: 1,
+    width: "100%",
+    maxWidth: 720,
+    alignSelf: "center",
+  },
+  logo: { width: 116, height: 44 },
+  account: {
+    width: 46,
+    height: 46,
+    borderRadius: 23,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  search: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    borderWidth: 1,
+    borderRadius: 14,
+    paddingHorizontal: 16,
+    minHeight: 56,
+  },
+  searchInput: { flex: 1, fontSize: 16, minHeight: 54 },
+  tabs: { flexDirection: "row", padding: 4, borderRadius: 14, borderWidth: 1 },
+  tab: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 7,
+    paddingVertical: 9,
+    paddingHorizontal: 16,
+    borderRadius: 10,
+    minHeight: 42,
+  },
+  empty: { paddingVertical: 44, alignItems: "center", gap: 18 },
+})

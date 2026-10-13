@@ -2,74 +2,66 @@ import type { ConfigContext, ExpoConfig } from "expo/config"
 
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
-  name: "O mas la ?",
+  name: "O Mas La ?",
   slug: "omasla-app",
   owner: "marvinldotcom",
-  scheme: "expo",
-  version: "1.1.0",
+  scheme: "omasla",
+  version: "2.0.0",
   orientation: "portrait",
   icon: "./assets/icon.png",
   userInterfaceStyle: "automatic",
-  splash: {
-    image: "./assets/icon.png",
-    resizeMode: "contain",
-    backgroundColor: "#efe8dd",
-  },
-  updates: {
-    fallbackToCacheTimeout: 0,
-    url: "https://u.expo.dev/1674bb77-7b4b-4066-a363-51d3329987c7",
-  },
-  assetBundlePatterns: ["**/*"],
+  updates: { url: "https://u.expo.dev/1674bb77-7b4b-4066-a363-51d3329987c7" },
   ios: {
     bundleIdentifier: "com.marvinl.omasla",
     supportsTablet: true,
     infoPlist: {
-      "ITSAppUsesNonExemptEncryption": false,
-      UIBackgroundModes: ["location", "fetch"],
+      ITSAppUsesNonExemptEncryption: false,
+      UIBackgroundModes: ["location"],
     },
   },
   android: {
     package: "com.marvinl.omasla",
-    googleServicesFile:
-      process.env.GOOGLE_SERVICES_JSON ?? "./google-services.json",
+    ...(process.env.GOOGLE_SERVICES_JSON
+      ? { googleServicesFile: process.env.GOOGLE_SERVICES_JSON }
+      : {}),
+    ...(process.env.GOOGLE_MAPS_API_KEY
+      ? { config: { googleMaps: { apiKey: process.env.GOOGLE_MAPS_API_KEY } } }
+      : {}),
     adaptiveIcon: {
       foregroundImage: "./assets/icon.png",
-      backgroundColor: "#efe8dd",
+      backgroundColor: "#f7f4ee",
     },
-    permissions: [
-      "ACCESS_COARSE_LOCATION",
-      "ACCESS_FINE_LOCATION",
-      "ACCESS_BACKGROUND_LOCATION",
-      "FOREGROUND_SERVICE",
-      "WAKE_LOCK",
-    ],
   },
+  web: { bundler: "metro", output: "single", favicon: "./assets/icon.png" },
   extra: {
-    eas: {
-      projectId: "1674bb77-7b4b-4066-a363-51d3329987c7",
-    },
+    androidMapsConfigured: Boolean(process.env.GOOGLE_MAPS_API_KEY),
+    eas: { projectId: "1674bb77-7b4b-4066-a363-51d3329987c7" },
   },
-  experiments: {
-    tsconfigPaths: true,
-    typedRoutes: true,
-  },
+  experiments: { typedRoutes: true },
   plugins: [
     "expo-router",
+    "expo-secure-store",
+    [
+      "expo-splash-screen",
+      {
+        image: "./assets/icon.png",
+        imageWidth: 180,
+        backgroundColor: "#f7f4ee",
+      },
+    ],
     [
       "expo-location",
       {
         isIosBackgroundLocationEnabled: true,
         isAndroidBackgroundLocationEnabled: true,
-        locationAlwaysAndWhenInUsePermission:
-          "Cela permettra à l'appli de fonctionner même en arrière plan.",
-        locationAlwaysPermission:
-          "Cela permettra à l'appli de fonctionner même en arrière plan.",
+        isAndroidForegroundServiceEnabled: true,
         locationWhenInUsePermission:
-          "Allow $(PRODUCT_NAME) to use your location.",
+          "Votre position sert uniquement lorsque vous choisissez de déclarer un groupe ou de partager son suivi.",
+        locationAlwaysAndWhenInUsePermission:
+          "En tant que référent, partagez la position de votre groupe même lorsque l’écran est verrouillé, jusqu’à l’arrêt du suivi.",
       },
     ],
+    "expo-notifications",
   ],
-  runtimeVersion: {
-    policy: "appVersion",
-  },
+  runtimeVersion: { policy: "appVersion" },
 })

@@ -10,14 +10,14 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@auth/core": "0.37.2"
+    "@auth/core": "0.41.3"
   },
   "devDependencies": {
     "@oyo/eslint-config": "workspace:*",
     "@oyo/prettier-config": "workspace:*",
     "@oyo/tailwind-config": "workspace:*",
     "@oyo/tsconfig": "workspace:*",
-    "@types/node": "^20.17.7",
+    "@types/node": "^22.13.0",
     "eslint": "catalog:",
     "h3": "^1.15.5",
     "nitropack": "^2.10.4",
