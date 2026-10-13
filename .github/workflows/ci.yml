@@ -1,0 +1,30 @@
+name: Validate refonte
+on:
+  pull_request:
+  push:
+    branches: [main, develop, refonte-2027]
+permissions:
+  contents: read
+concurrency:
+  group: validate-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      NEXT_TELEMETRY_DISABLED: "1"
+      EXPO_NO_TELEMETRY: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./tooling/github/setup
+      - name: Isolated build configuration
+        run: node scripts/setup-local.mjs
+      - name: Apply SQLite migrations locally
+        run: pnpm --filter @oyo/db with-env drizzle-kit migrate
+      - name: Types, lint, API and mobile contract tests
+        run: pnpm check
+      - name: Build Next.js
+        run: pnpm --filter @oyo/nextjs build
+      - name: Export iOS, Android and web bundles
+        run: pnpm --filter @oyo/nextjs with-env pnpm --filter @oyo/expo export

@@ -3,7 +3,6 @@ import type {
   NextAuthConfig,
   Session as NextAuthSession,
 } from "next-auth"
-import { skipCSRFCheck } from "@auth/core"
 import { DrizzleAdapter } from "@auth/drizzle-adapter"
 import Discord from "next-auth/providers/discord"
 
@@ -11,6 +10,9 @@ import { db } from "@oyo/db/client"
 import { Account, Session, User } from "@oyo/db/schema"
 
 import { env } from "../env"
+import { bearerSession } from "./native-protocol"
+import { verifiedSession } from "./session-policy"
+import { revokeConvexSession } from "./tokens"
 
 declare module "next-auth" {
   interface Session {
@@ -26,19 +28,43 @@ const adapter = DrizzleAdapter(db, {
   sessionsTable: Session,
 })
 
+const deleteDatabaseSession = adapter.deleteSession?.bind(adapter)
+adapter.deleteSession = async (sessionToken) => {
+  const current = await adapter.getSessionAndUser?.(sessionToken)
+  if (current && current.session.expires.getTime() > Date.now()) {
+    await revokeConvexSession(
+      {
+        user: { id: current.user.id },
+        expires: current.session.expires.toISOString(),
+      },
+      sessionToken,
+    )
+  }
+  // A failed backend revocation must not be reported as a successful logout.
+  await deleteDatabaseSession?.(sessionToken)
+}
+
 export const isSecureContext = env.NODE_ENV !== "development"
 
 export const authConfig = {
   adapter,
-  // In development, we need to skip checks to allow Expo to work
+  session: { strategy: "database" },
+  // OAuth state/PKCE and Auth.js CSRF checks remain enabled in development too.
   ...(!isSecureContext
     ? {
-        skipCSRFCheck: skipCSRFCheck,
         trustHost: true,
       }
     : {}),
   secret: env.AUTH_SECRET,
-  providers: [Discord],
+  providers:
+    env.AUTH_DISCORD_ID && env.AUTH_DISCORD_SECRET
+      ? [
+          Discord({
+            clientId: env.AUTH_DISCORD_ID,
+            clientSecret: env.AUTH_DISCORD_SECRET,
+          }),
+        ]
+      : [],
   callbacks: {
     session: (opts) => {
       if (!("user" in opts))
@@ -58,8 +84,9 @@ export const authConfig = {
 export const validateToken = async (
   token: string,
 ): Promise<NextAuthSession | null> => {
-  const sessionToken = token.slice("Bearer ".length)
-  const session = await adapter.getSessionAndUser?.(sessionToken)
+  const session = await verifiedSession(token, async (sessionToken) =>
+    adapter.getSessionAndUser?.(sessionToken),
+  )
   return session
     ? {
         user: {
@@ -71,6 +98,7 @@ export const validateToken = async (
 }
 
 export const invalidateSessionToken = async (token: string) => {
-  const sessionToken = token.slice("Bearer ".length)
+  const sessionToken = bearerSession(token)
+  if (!sessionToken) throw new Error("Invalid session authorization")
   await adapter.deleteSession?.(sessionToken)
 }

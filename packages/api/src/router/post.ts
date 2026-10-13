@@ -16,7 +16,7 @@ export const postRouter = {
   }),
 
   byId: publicProcedure
-    .input(z.object({ id: z.string() }))
+    .input(z.object({ id: z.number().int().positive() }))
     .query(({ ctx, input }) => {
       // return ctx.db
       //   .select()
@@ -34,7 +34,9 @@ export const postRouter = {
       return ctx.db.insert(Post).values(input)
     }),
 
-  delete: protectedProcedure.input(z.string()).mutation(({ ctx, input }) => {
-    return ctx.db.delete(Post).where(eq(Post.id, input))
-  }),
+  delete: protectedProcedure
+    .input(z.number().int().positive())
+    .mutation(({ ctx, input }) => {
+      return ctx.db.delete(Post).where(eq(Post.id, input))
+    }),
 } satisfies TRPCRouterRecord

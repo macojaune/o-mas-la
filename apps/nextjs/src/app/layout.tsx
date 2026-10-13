@@ -56,11 +56,13 @@ export default function RootLayout(props: { children: React.ReactNode }) {
           GeistMono.variable,
         )}
       >
-        <Script
-          src="https://analytics.macojaune.com/script.js"
-          data-website-id="638989fa-9ab3-4a30-b342-0c9d4103f87f"
-          defer
-        />
+        {env.NEXT_PUBLIC_ANALYTICS_ENABLED === "true" && (
+          <Script
+            src="https://analytics.macojaune.com/script.js"
+            data-website-id="638989fa-9ab3-4a30-b342-0c9d4103f87f"
+            defer
+          />
+        )}
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <ConvexClientProvider>
             <TRPCReactProvider>{props.children}</TRPCReactProvider>

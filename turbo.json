@@ -43,13 +43,36 @@
     "ui-add": {
       "cache": false,
       "interactive": true
+    },
+    "test": {
+      "dependsOn": ["^build"],
+      "outputs": []
     }
   },
   "globalEnv": [
-    "DB_URL",
-    "DB_TOKEN",
+    "ALLOW_LOCAL_FIXTURES",
+    "AUTH_DISCORD_ID",
+    "AUTH_DISCORD_SECRET",
+    "AUTH_ISSUER_URL",
+    "AUTH_JWT_KEY_ID",
+    "AUTH_JWT_PRIVATE_KEY",
     "AUTH_REDIRECT_PROXY_URL",
     "AUTH_SECRET",
+    "BOOTSTRAP_ADMIN_SUBJECT",
+    "CONVEX_AUTH_AUDIENCE",
+    "CONVEX_AUTH_ISSUER",
+    "CONVEX_AUTH_JWKS",
+    "CONVEX_URL",
+    "DB_TOKEN",
+    "DB_URL",
+    "EXPO_PUBLIC_API_URL",
+    "EXPO_PUBLIC_CONVEX_URL",
+    "GOOGLE_MAPS_API_KEY",
+    "GOOGLE_SERVICES_JSON",
+    "NEXT_PUBLIC_ANALYTICS_ENABLED",
+    "NEXT_PUBLIC_APP_URL",
+    "NEXT_PUBLIC_CONVEX_URL",
+    "NEXT_PUBLIC_MAPBOX_TOKEN",
     "PORT"
   ],
   "globalPassThroughEnv": [

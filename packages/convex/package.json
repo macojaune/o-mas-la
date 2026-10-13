@@ -12,19 +12,24 @@
     "dev": "convex dev",
     "format": "prettier --check . --ignore-path ../../.gitignore",
     "lint": "eslint",
-    "typecheck": "tsc --noEmit --emitDeclarationOnly false"
+    "typecheck": "tsc --noEmit --emitDeclarationOnly false",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "devDependencies": {
+    "@edge-runtime/vm": "5.0.0",
     "@oyo/eslint-config": "workspace:*",
     "@oyo/prettier-config": "workspace:*",
     "@oyo/tsconfig": "workspace:*",
+    "convex-test": "0.0.61",
     "eslint": "catalog:",
     "prettier": "catalog:",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "vitest": "3.2.7"
   },
   "prettier": "@oyo/prettier-config",
   "dependencies": {
-    "convex": "^1.17.4",
+    "convex": "1.46.0",
     "expo-server-sdk": "^3.13.0"
   }
 }

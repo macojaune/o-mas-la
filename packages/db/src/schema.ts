@@ -1,3 +1,4 @@
+import type { AdapterAccount } from "@auth/core/adapters"
 import { relations, sql } from "drizzle-orm"
 import {
   index,
@@ -9,7 +10,7 @@ import {
 import { createInsertSchema } from "drizzle-zod"
 import { z } from "zod"
 
-export const Post = sqliteTable("post", (t) => ({
+export const Post = sqliteTable("post", () => ({
   id: int("id").notNull().primaryKey(),
   title: text("title", { length: 255 }).notNull(),
   content: text().notNull(),
@@ -90,3 +91,13 @@ export const Session = sqliteTable(
 export const SessionRelations = relations(Session, ({ one }) => ({
   user: one(User, { fields: [Session.userId], references: [User.id] }),
 }))
+
+// An ephemeral, PKCE-bound handoff. Never exposed through the public API.
+export const NativeAuthGrant = sqliteTable("native_auth_grant", {
+  id: text("id").notNull().primaryKey(),
+  redirectUri: text("redirect_uri").notNull(),
+  codeChallenge: text("code_challenge").notNull(),
+  clientState: text("client_state").notNull(),
+  expires: int("expires", { mode: "timestamp" }).notNull(),
+  sessionToken: text("session_token"),
+})

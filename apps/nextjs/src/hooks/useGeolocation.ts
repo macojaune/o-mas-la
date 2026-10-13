@@ -1,29 +1,32 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useCallback, useState } from "react"
 
 export function useGeolocation() {
   const [position, setPosition] = useState<GeolocationPosition>()
   const [error, setError] = useState<string>()
+  const [isLocating, setLocating] = useState(false)
 
-  useEffect(() => {
-    if (!navigator.geolocation) {
-      setError("Geolocation is not supported")
+  const requestPosition = useCallback(() => {
+    if (!("geolocation" in navigator)) {
+      setError("La localisation n'est pas disponible dans ce navigateur.")
       return
     }
-
-    const watchId = navigator.geolocation.watchPosition(
-      (position) => setPosition(position),
-      (error) => setError(error.message),
-      {
-        enableHighAccuracy: true,
-        timeout: 0,
-        maximumAge: 50000,
+    setLocating(true)
+    setError(undefined)
+    navigator.geolocation.getCurrentPosition(
+      (result) => {
+        setPosition(result)
+        setLocating(false)
       },
+      () => {
+        setError(
+          "Position indisponible. Vérifie l'autorisation de localisation puis réessaie.",
+        )
+        setLocating(false)
+      },
+      { enableHighAccuracy: true, timeout: 15_000, maximumAge: 0 },
     )
-
-    return () => navigator.geolocation.clearWatch(watchId)
   }, [])
-
-  return { position, error }
+  return { position, error, isLocating, requestPosition }
 }

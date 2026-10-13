@@ -1,130 +1,145 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import mapboxgl, {
-  GeolocateControl,
-  Marker,
-  NavigationControl,
-} from "mapbox-gl"
+import mapboxgl from "mapbox-gl"
 
 import "mapbox-gl/dist/mapbox-gl.css"
 
-import { useQuery } from "convex/react"
 import { useTheme } from "next-themes"
 
 import type { Id } from "@oyo/convex"
-import { api as convexApi } from "@oyo/convex"
+import { positionFreshness } from "@oyo/convex"
 
-import type { Group } from "~/lib/map-utils"
-import { useMapRoute } from "~/hooks/useMapRoute"
-import { formatTime, getMarkerColor } from "~/lib/map-utils"
-
-mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || ""
+import type { CatalogState } from "~/hooks/usePublicCatalog"
+import { env } from "~/env"
 
 interface MapComponentProps {
-  userPosition?: GeolocationPosition
   selectedGroup: Id<"groups"> | null
   onGroupSelect: (groupId: Id<"groups">) => void
+  catalog: CatalogState
 }
 
 export default function MapComponent({
-  userPosition,
   selectedGroup,
   onGroupSelect,
+  catalog,
 }: MapComponentProps) {
   const mapContainer = useRef<HTMLDivElement>(null)
   const map = useRef<mapboxgl.Map | null>(null)
-  const { theme } = useTheme()
-  const groups = useQuery(convexApi.positions.byGroups) as Record<
-    Id<"groups">,
-    Group
-  >
-  const [markers, setMarkers] = useState(new Map<Id<"groups">, Marker>())
+  const markers = useRef<mapboxgl.Marker[]>([])
+  const { resolvedTheme } = useTheme()
+  const [error, setError] = useState<string | null>(null)
 
-  // Initialize map
   useEffect(() => {
-    if (!mapContainer.current || !mapboxgl.accessToken) return
-
-    map.current = new mapboxgl.Map({
+    if (!mapContainer.current || !env.NEXT_PUBLIC_MAPBOX_TOKEN) return
+    mapboxgl.accessToken = env.NEXT_PUBLIC_MAPBOX_TOKEN
+    const instance = new mapboxgl.Map({
       container: mapContainer.current,
       style:
-        theme === "dark"
+        resolvedTheme === "dark"
           ? "mapbox://styles/mapbox/dark-v11"
           : "mapbox://styles/mapbox/light-v11",
-      center: [-61.533329, 16.241935], // P-a-p coordinates
+      center: [-61.533329, 16.241935],
       zoom: 14,
     })
-      .addControl(new NavigationControl())
-      .addControl(
-        new GeolocateControl({
-          positionOptions: { enableHighAccuracy: true },
-          trackUserLocation: true,
-          showUserHeading: true,
-          showUserLocation: true,
-          showAccuracyCircle: true,
-          fitBoundsOptions: { padding: 50 },
-        }),
-      )
-
+    map.current = instance
+    instance.addControl(new mapboxgl.NavigationControl())
+    // Geolocation is requested only if the visitor presses this control.
+    instance.addControl(
+      new mapboxgl.GeolocateControl({
+        positionOptions: { enableHighAccuracy: true },
+        trackUserLocation: false,
+      }),
+    )
+    instance.on("error", () =>
+      setError(
+        "La carte est indisponible. Les dernières informations restent consultables dans la liste.",
+      ),
+    )
+    instance.on("load", () => setError(null))
     return () => {
-      map.current?.remove()
+      markers.current.forEach((marker) => marker.remove())
+      markers.current = []
+      instance.remove()
+      map.current = null
     }
-  }, [theme])
+  }, [resolvedTheme])
 
-  // Add markers and pattern
   useEffect(() => {
-    if (!map.current || !groups) return
-    map.current.on("style.load", () => {
-      map.current?.loadImage(
-        "https://docs.mapbox.com/mapbox-gl-js/assets/pattern-dot.png",
-        (error, image) => {
-          if (error) throw error
-          map.current?.addImage("pattern-dot", image)
-        },
+    const instance = map.current
+    if (!instance) return
+    markers.current.forEach((marker) => marker.remove())
+    markers.current = []
+    for (const group of catalog.data?.groups ?? []) {
+      const freshness = positionFreshness(
+        group.position,
+        catalog.data?.policy ?? null,
+        catalog.now,
       )
+      const position = group.position
+      if (!position || (freshness !== "recent" && freshness !== "aging"))
+        continue
+      if (
+        !Number.isFinite(position.longitude) ||
+        !Number.isFinite(position.latitude)
+      )
+        continue
+      const element = document.createElement("button")
+      element.type = "button"
+      element.textContent = group.title
+      element.className = `rounded-md border px-3 py-2 text-sm font-semibold shadow ${freshness === "aging" ? "border-amber-700 bg-amber-100 text-amber-950" : "border-purple-900 bg-purple-700 text-white"}`
+      element.setAttribute(
+        "aria-label",
+        `${group.title} — ${freshness === "aging" ? "position ancienne" : "position récente"}`,
+      )
+      element.addEventListener("click", () => onGroupSelect(group.id))
+      markers.current.push(
+        new mapboxgl.Marker({ element })
+          .setLngLat([position.longitude, position.latitude])
+          .addTo(instance),
+      )
+    }
+  }, [catalog.data, catalog.now, onGroupSelect, resolvedTheme])
+
+  const selected = catalog.data?.groups.find(
+    (item) => item.id === selectedGroup,
+  )
+  const selectedFreshness = positionFreshness(
+    selected?.position ?? null,
+    catalog.data?.policy ?? null,
+    catalog.now,
+  )
+  const selectedVisible =
+    selectedFreshness === "recent" || selectedFreshness === "aging"
+  const latitude = selectedVisible ? selected?.position?.latitude : undefined
+  const longitude = selectedVisible ? selected?.position?.longitude : undefined
+  useEffect(() => {
+    if (latitude === undefined || longitude === undefined) return
+    map.current?.flyTo({
+      center: [longitude, latitude],
+      zoom: 15,
+      essential: false,
     })
+  }, [selectedGroup, latitude, longitude, resolvedTheme])
 
-    //remove marker
-    const m = new Map(markers)
-    m.forEach((marker) => marker.remove())
-    m.clear()
-    setMarkers(m)
-    Object.values(groups).forEach((group: Group) => {
-      // const popup = new mapboxgl.Popup().setHTML(`
-      //   <div class="p-2 bg-purple-500">
-      //     <h3 class="font-bold">${group.title}</h3>
-      //     <p class="text-sm">Dernière mise à jour: ${formatTime(group.positions[0]._creationTime)}</p>
-      //   </div>
-      // `)
-
-      // popup.on("open", () => onGroupSelect(group._id))
-      // popup.on("close", () => onGroupSelect(group._id))
-      const isLive = group.isLive
-      const element = document.createElement("div")
-      element.innerHTML = `
-  <div class="relative flex ${isLive ? 'bg-primary' : 'bg-purple-500'} p-2 before:w-4 before:h-4 before:rotate-45 before:absolute before:z-[-1] before:-bottom-1 before:left-0 before:right-0 before:mx-auto ${isLive ? 'before:bg-primary' : 'before:bg-purple-500'}">
-  <span class="absolute -top-1 -right-1 h-2 w-2 animate-ping rounded-full aspect-square bg-purple-500 opacity-85 ${isLive ? "" : "hidden"}"></span>
-    <h3 class="font-bold">${group.title}</h3>
-  </div>`
-      const marker = new Marker({
-        color: getMarkerColor(group),
-        element,
-      })
-        .setLngLat([
-          group.positions[0]?.longitude,
-          group.positions[0]?.latitude,
-        ])
-        // .setPopup(popup)
-        .addTo(map.current)
-
-      //add marker to list
-      m.set(group._id, marker)
-      setMarkers(m)
-    })
-  }, [groups])
-
-  // Handle route display
-  useMapRoute(map.current, selectedGroup, groups)
-
-  return <div ref={mapContainer} className="h-full w-full" />
+  if (!env.NEXT_PUBLIC_MAPBOX_TOKEN)
+    return (
+      <div className="flex h-full min-h-64 items-center justify-center bg-muted p-8 text-center text-sm">
+        La carte est indisponible. Consulte les groupes et leurs dernières
+        positions dans la liste.
+      </div>
+    )
+  return (
+    <>
+      <div ref={mapContainer} className="h-full w-full" />
+      {error && (
+        <p
+          role="status"
+          className="absolute left-4 right-4 top-4 rounded-md bg-background p-3 text-sm shadow"
+        >
+          {error}
+        </p>
+      )}
+    </>
+  )
 }

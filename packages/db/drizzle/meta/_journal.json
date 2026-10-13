@@ -8,6 +8,13 @@
       "when": 1735594374597,
       "tag": "0000_majestic_surge",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1791926062607,
+      "tag": "0001_native_auth_grant",
+      "breakpoints": true
     }
   ]
 }
