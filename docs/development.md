@@ -63,10 +63,10 @@ La CI exécute types, lint, tests, build Next et exports iOS/Android/web avec sa
 
 ## Configuration restant à fournir
 
-- Fournisseur public de connexion : Discord existant reste disponible si ses deux variables sont configurées. Le choix du fournisseur grand public est encore à confirmer ; aucun compte fournisseur n'a été créé ni modifié. Sans fournisseur configuré, la consultation publique reste disponible.
+- Connexion publique décidée : Google, Apple et e-mail par lien de connexion. Les identifiants fournisseurs et le transport Brevo doivent être configurés côté serveur ; aucun compte fournisseur n’a été créé ou modifié. Sans configuration, la consultation publique reste disponible. Voir la décision d’identité pour le contrat des callbacks et de l’e-mail.
 - Cartographie : token public Mapbox pour le web, clé Google Maps restreinte pour Android ; iOS utilise la carte native. Sans token Mapbox, le web conserve un annuaire explicite.
 - Comptes Apple/Google/EAS et autorisations de publication. Une session CLI EAS connectée, des identifiants de signature et des appareils sont nécessaires pour les builds terrain.
-- Habilitations des référents et de l'équipe. L'administrateur attribue les rôles et les groupes ; le modérateur peut arrêter un live et retirer une observation. Cette séparation est l'hypothèse de développement proposée à Marvin.
+- Habilitations des référents et de l’équipe : les modérateurs et administrateurs habilitent/révoquent les référents, règlent le suivi, arrêtent les lives et retirent les observations. L’attribution des rôles de l’équipe reste réservée aux administrateurs.
 - Seuils de fraîcheur, durée, rayon autour de Pointe-à-Pitre, précision et vitesse à mesurer sur le terrain. La politique de simulation n'est pas une recommandation opérationnelle.
 - Politique de conservation/suppression des comptes et positions, textes de confidentialité, inventaire des données réelles et migration de bascule. Les textes historiques du site n'ont pas encore été réécrits pour l'app.
 
@@ -74,8 +74,14 @@ L'arrêt serveur est autoritaire : les points tardifs ne relancent jamais le sui
 
 ## Bascule et livraison
 
-Le schéma Convex est additif : groupes, positions, utilisateurs historiques et identifiants sont conservés. `native_auth_grant` est ajouté par la migration SQLite `0001`. Aucune migration de données réelles n'a été exécutée.
+Le schéma Convex est additif : groupes, positions, utilisateurs historiques et identifiants sont conservés. `native_auth_grant` est ajouté par la migration SQLite `0001`. Le parcours e-mail ajoute ses tables de vérification/limitation dans une migration dédiée ; auditer les doublons d’adresses avant d’appliquer son index unique aux données réelles. Aucune migration de données réelles n'a été exécutée.
 
 Les anciennes écritures anonymes et les diffusions de notification arbitraires sont désactivées. Une bascule exige donc une stratégie de mise à jour coordonnée des anciens clients ; ne pas déployer isolément ce backend sur la production actuelle. Répéter la migration et définir un retour arrière avant la bascule, à partir d'une sauvegarde des données de l'environnement concerné.
 
 Les branches ne définissent pas à elles seules les environnements. Ce chantier ne modifie aucun service Coolify, projet Convex cloud, store ou configuration de production.
+
+## Décisions confirmées pendant le développement
+
+La cible produit est l’app **Expo + React Native iOS/Android existante** dans `apps/expo`, modernisée et étendue. Le web est une interface complémentaire et une console de modération ; son aperçu ne remplace pas la validation native.
+
+La déclaration hors live prend un GPS neuf sur action explicite, puis publie sa position et son heure d’acquisition. Permission refusée ou absence de mesure récente bloquent la contribution ; ni saisie de coordonnées/heure ni report d’un ancien relevé après reconnexion. Une réponse perdue peut être confirmée par identifiant de requête propre au compte, sans créer une deuxième observation.

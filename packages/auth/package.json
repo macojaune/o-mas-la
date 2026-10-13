@@ -11,6 +11,7 @@
     "./env": "./env.ts",
     "./native": "./src/native.ts",
     "./tokens": "./src/tokens.ts",
+    "./request-context": "./src/request-context.ts",
     "./convex-client": "./src/convex-client.tsx"
   },
   "license": "MIT",

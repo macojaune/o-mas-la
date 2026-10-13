@@ -60,6 +60,7 @@ assert.equal(
 )
 const principals = {
   admin: "simulation-admin",
+  moderator: "simulation-moderator",
   referent: "simulation-referent",
   otherReferent: "simulation-other-referent",
   spectator: "simulation-spectator",
@@ -79,6 +80,7 @@ const fixture = JSON.parse(
       JSON.stringify({
         issuer,
         adminSubject: principals.admin,
+        moderatorSubject: principals.moderator,
         referentSubject: principals.referent,
         otherReferentSubject: principals.otherReferent,
         spectatorSubject: principals.spectator,
@@ -127,13 +129,14 @@ async function clientFor(role) {
   await client.mutation(ref("accounts:ensure"), {})
   return client
 }
-const [admin, referent, other, spectator] = await Promise.all([
+const [admin, moderator, referent, other, spectator] = await Promise.all([
   clientFor("admin"),
+  clientFor("moderator"),
   clientFor("referent"),
   clientFor("otherReferent"),
   clientFor("spectator"),
 ])
-checks += 4
+checks += 5
 await assert.rejects(
   publicClient.mutation(ref("sessions:start"), {
     groupId: fixture.groupId,
@@ -150,10 +153,102 @@ checks += 2
 const active = await admin.query(ref("administration:overview"), {})
 for (const item of active.filter((item) => item.groupId === fixture.groupId))
   await admin.mutation(ref("sessions:stopAsModerator"), { sessionId: item.id })
+// Exercise operational permissions with a genuine moderator JWT from the local Auth.js session.
+const directory = await moderator.query(
+  ref("administration:readAdminDirectory"),
+  {},
+)
+assert.equal(
+  directory.accounts.find(
+    (account) => account.id === fixture.accounts.moderator,
+  )?.role,
+  "moderator",
+)
+assert.equal(
+  directory.accounts.find(
+    (account) => account.id === fixture.accounts.spectator,
+  )?.role,
+  "spectator",
+)
+assert.deepEqual(Object.keys(directory).sort(), [
+  "accounts",
+  "grants",
+  "groups",
+])
+for (const [collection, fields] of [
+  ["accounts", ["displayName", "id", "role"]],
+  ["groups", ["id", "title"]],
+  ["grants", ["accountId", "groupId"]],
+])
+  for (const entry of directory[collection])
+    assert.deepEqual(Object.keys(entry).sort(), fields)
+const currentPolicy = await moderator.query(ref("administration:getPolicy"), {})
+assert.ok(
+  currentPolicy?.policy,
+  "The local simulation must have an explicit tracking policy",
+)
+const policyId = await moderator.mutation(ref("administration:setPolicy"), {
+  policy: currentPolicy.policy,
+})
+const savedPolicy = await moderator.query(ref("administration:getPolicy"), {})
+assert.equal(savedPolicy._id, policyId)
+assert.equal(savedPolicy.createdBy, fixture.accounts.moderator)
+assert.deepEqual(savedPolicy.policy, currentPolicy.policy)
+const permission = {
+  accountId: fixture.accounts.spectator,
+  groupId: fixture.groupId,
+}
+await moderator.mutation(ref("administration:grantReferent"), permission)
+assert.ok(
+  (
+    await moderator.query(ref("administration:readAdminDirectory"), {})
+  ).grants.some(
+    (grant) =>
+      grant.accountId === permission.accountId &&
+      grant.groupId === permission.groupId,
+  ),
+)
+await moderator.mutation(ref("administration:revokeReferent"), permission)
+assert.ok(
+  !(
+    await moderator.query(ref("administration:readAdminDirectory"), {})
+  ).grants.some(
+    (grant) =>
+      grant.accountId === permission.accountId &&
+      grant.groupId === permission.groupId,
+  ),
+)
+checks += 5
+for (const [kind, name, args] of [
+  ["query", "administration:readAdminDirectory", {}],
+  ["query", "administration:getPolicy", {}],
+  ["mutation", "administration:setPolicy", { policy: currentPolicy.policy }],
+  ["mutation", "administration:grantReferent", permission],
+  ["mutation", "administration:revokeReferent", permission],
+]) {
+  await assert.rejects(spectator[kind](ref(name), args), /FORBIDDEN/)
+  checks += 1
+}
+await assert.rejects(
+  moderator.mutation(ref("administration:setRole"), {
+    accountId: fixture.accounts.moderator,
+    role: "admin",
+  }),
+  /FORBIDDEN/,
+)
+await assert.rejects(
+  spectator.mutation(ref("administration:setRole"), {
+    accountId: fixture.accounts.spectator,
+    role: "admin",
+  }),
+  /FORBIDDEN/,
+)
+checks += 2
 const observedAt = Date.now()
+const observationRequestId = randomUUID()
 const positionId = await spectator.mutation(ref("observations:create"), {
   groupId: fixture.groupId,
-  requestId: randomUUID(),
+  requestId: observationRequestId,
   latitude: 16.24,
   longitude: -61.53,
   observedAt,
@@ -164,6 +259,45 @@ assert.equal(
   ).position.source,
   "community",
 )
+// A lost-response receipt is scoped to the authenticated principal, even with the same request id.
+const receiptArgs = { requestId: observationRequestId }
+await assert.rejects(
+  publicClient.query(ref("observations:byRequest"), receiptArgs),
+  /AUTH_REQUIRED/,
+)
+assert.deepEqual(
+  await spectator.query(ref("observations:byRequest"), receiptArgs),
+  { positionId, groupId: fixture.groupId, observedAt },
+)
+assert.equal(
+  await other.query(ref("observations:byRequest"), receiptArgs),
+  null,
+)
+const otherObservedAt = Date.now()
+const otherPositionId = await other.mutation(ref("observations:create"), {
+  groupId: fixture.groupId,
+  requestId: observationRequestId,
+  latitude: 16.241,
+  longitude: -61.531,
+  observedAt: otherObservedAt,
+})
+assert.notEqual(otherPositionId, positionId)
+assert.deepEqual(
+  await other.query(ref("observations:byRequest"), receiptArgs),
+  {
+    positionId: otherPositionId,
+    groupId: fixture.groupId,
+    observedAt: otherObservedAt,
+  },
+)
+assert.deepEqual(
+  await spectator.query(ref("observations:byRequest"), receiptArgs),
+  { positionId, groupId: fixture.groupId, observedAt },
+)
+checks += 6
+await admin.mutation(ref("observations:retract"), {
+  positionId: otherPositionId,
+})
 await admin.mutation(ref("observations:retract"), { positionId })
 assert.notEqual(
   (await publicClient.query(ref("catalog:list"), {})).groups.find(
@@ -295,6 +429,11 @@ console.log(
       checks,
       environment: { web: issuer, convex: backend },
       synthetic: true,
+      addedCoverage: [
+        "Moderator JWT: minimal directory, policy read/write, referent grant/revoke",
+        "Spectator denied every settings/permission operation; moderator and spectator denied platform role promotion",
+        "Observation receipt isolated by authenticated account, including a reused request id",
+      ],
       limits: [
         "OAuth provider not exercised",
         "No physical device/background GPS proof",

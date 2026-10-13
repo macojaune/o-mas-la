@@ -16,6 +16,22 @@ import {
 
 export * from "./native-protocol"
 
+export async function pendingNativeGrantId(id: string | undefined) {
+  if (!id || !validProofChallenge(id)) return undefined
+  const grant = await db
+    .select({ id: NativeAuthGrant.id })
+    .from(NativeAuthGrant)
+    .where(
+      and(
+        eq(NativeAuthGrant.id, id),
+        gt(NativeAuthGrant.expires, new Date()),
+        isNull(NativeAuthGrant.sessionToken),
+      ),
+    )
+    .get()
+  return grant?.id
+}
+
 export async function createNativeGrant(
   redirectUri: unknown,
   codeChallenge: unknown,

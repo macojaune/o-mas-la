@@ -14,18 +14,12 @@ export interface GroupMapProps {
   now: number
   selectedId?: string
   onSelect: (group: PublicGroup) => void
-  picking?: boolean
-  picked?: { latitude: number; longitude: number } | null
-  onPick?: (point: { latitude: number; longitude: number }) => void
 }
 export default function GroupMap({
   catalog,
   now,
   selectedId,
   onSelect,
-  picking,
-  picked,
-  onPick,
 }: GroupMapProps) {
   const c = usePalette()
   const map = useRef<MapView>(null)
@@ -82,52 +76,35 @@ export default function GroupMap({
         showsMyLocationButton={false}
         toolbarEnabled={false}
         onMapReady={() => setReady(true)}
-        onPress={
-          picking
-            ? (event) => onPick?.(event.nativeEvent.coordinate)
-            : undefined
-        }
-        accessibilityLabel={
-          picking
-            ? "Placez la position observée sur la carte"
-            : "Carte des dernières positions des groupes"
-        }
+        accessibilityLabel="Carte des dernières positions des groupes"
       >
-        {!picking &&
-          catalog.groups.map((group) => {
-            const position = visiblePosition(group, catalog, now)
-            if (!position) return null
-            const fresh = positionFreshness(position, catalog.policy, now)
-            return (
-              <Marker
-                key={group.id}
-                coordinate={position}
-                title={group.title}
-                description={
-                  fresh === "aging"
-                    ? "Position ancienne"
-                    : group.live
-                      ? "Suivi en direct"
-                      : "Observation datée"
-                }
-                pinColor={
-                  fresh === "aging"
-                    ? c.warning
-                    : group.live
-                      ? c.primary
-                      : c.success
-                }
-                onPress={() => onSelect(group)}
-              />
-            )
-          })}
-        {picked && (
-          <Marker
-            coordinate={picked}
-            pinColor={c.primary}
-            title="Position de votre observation"
-          />
-        )}
+        {catalog.groups.map((group) => {
+          const position = visiblePosition(group, catalog, now)
+          if (!position) return null
+          const fresh = positionFreshness(position, catalog.policy, now)
+          return (
+            <Marker
+              key={group.id}
+              coordinate={position}
+              title={group.title}
+              description={
+                fresh === "aging"
+                  ? "Position ancienne"
+                  : group.live
+                    ? "Suivi en direct"
+                    : "Observation datée"
+              }
+              pinColor={
+                fresh === "aging"
+                  ? c.warning
+                  : group.live
+                    ? c.primary
+                    : c.success
+              }
+              onPress={() => onSelect(group)}
+            />
+          )
+        })}
       </MapView>
       {!ready && slow && (
         <View style={[s.error, { backgroundColor: c.surface }]}>

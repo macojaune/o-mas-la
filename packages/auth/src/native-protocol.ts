@@ -1,6 +1,6 @@
 export const NATIVE_REDIRECT_URI = "omasla://login"
 export const NATIVE_COOKIE_NAME = "omasla-native-auth"
-export const NATIVE_FLOW_SECONDS = 600
+export const NATIVE_FLOW_SECONDS = 15 * 60
 export const NATIVE_CODE_SECONDS = 90
 
 export function validNativeRedirect(value: unknown): value is string {

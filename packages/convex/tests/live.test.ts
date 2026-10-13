@@ -91,6 +91,7 @@ async function setup(configured = true) {
     publicUser,
     mod,
     adminId,
+    modId,
     aliceId,
     bobId,
     groupId,
@@ -195,22 +196,110 @@ describe("public reads and server permissions", () => {
     await expect(start()).rejects.toThrow("CONFIGURATION_REQUIRED")
     expect((await t.query(api.catalog.list, {})).policy).toBeNull()
   })
-  it("keeps administrator configuration separate from moderation", async () => {
-    const { mod, start, groupId, aliceId } = await setup()
+  it("lets the moderation team manage referents and tracking settings with an audit trail", async () => {
+    const { t, mod, modId, aliceId, alice, groupId, otherGroup, start } =
+      await setup()
     const session = await start()
+    const policyId = await mod.mutation(api.administration.setPolicy, {
+      policy: { ...policy, maxDurationMs: 300_000 },
+    })
+    expect(await mod.query(api.administration.getPolicy, {})).toMatchObject({
+      _id: policyId,
+      createdBy: modId,
+      policy: { maxDurationMs: 300_000 },
+    })
+    await mod.mutation(api.administration.grantReferent, {
+      accountId: aliceId,
+      groupId: otherGroup,
+    })
+    const newSession = await alice.mutation(api.sessions.start, {
+      groupId: otherGroup,
+      deviceId: "other-phone",
+      requestId: "moderator-grant",
+    })
+    expect(newSession.expiresAt).toBe(now + 300_000)
+    expect((await t.run((ctx) => ctx.db.get(session.id)))?.policy).toEqual(
+      policy,
+    )
+    await mod.mutation(api.administration.revokeReferent, {
+      accountId: aliceId,
+      groupId,
+    })
+    expect(await t.run((ctx) => ctx.db.get(session.id))).toMatchObject({
+      status: "ended",
+      endReason: "revoked",
+      endedBy: modId,
+    })
     await expect(
-      mod.mutation(api.administration.grantReferent, {
+      alice.mutation(api.telemetry.ingest, point(session)),
+    ).rejects.toThrow("REFERENT_REQUIRED")
+    const events = await t.run((ctx) =>
+      ctx.db.query("administrativeEvents").collect(),
+    )
+    expect(
+      events
+        .filter((event) => event.actorId === modId)
+        .map((event) => event.type),
+    ).toEqual(["policy_created", "referent_granted", "referent_revoked"])
+  })
+  it("refuses spectator access to settings, the directory and referent permissions", async () => {
+    const { publicUser, aliceId, groupId } = await setup()
+    await expect(
+      publicUser.query(api.administration.getPolicy, {}),
+    ).rejects.toThrow("FORBIDDEN")
+    await expect(
+      publicUser.query(api.administration.readAdminDirectory, {}),
+    ).rejects.toThrow("FORBIDDEN")
+    await expect(
+      publicUser.mutation(api.administration.setPolicy, { policy }),
+    ).rejects.toThrow("FORBIDDEN")
+    await expect(
+      publicUser.mutation(api.administration.grantReferent, {
         accountId: aliceId,
         groupId,
       }),
     ).rejects.toThrow("FORBIDDEN")
-    expect(
-      (
-        await mod.mutation(api.sessions.stopAsModerator, {
-          sessionId: session.id,
-        })
-      ).endReason,
-    ).toBe("moderation")
+    await expect(
+      publicUser.mutation(api.administration.revokeReferent, {
+        accountId: aliceId,
+        groupId,
+      }),
+    ).rejects.toThrow("FORBIDDEN")
+  })
+  it("keeps platform role promotion admin-only and prevents removing the final administrator", async () => {
+    const { t, admin, adminId, mod, modId, publicUser, aliceId } = await setup()
+    for (const actor of [mod, publicUser]) {
+      await expect(
+        actor.mutation(api.administration.setRole, {
+          accountId: aliceId,
+          role: "moderator",
+        }),
+      ).rejects.toThrow("FORBIDDEN")
+      await expect(
+        actor.mutation(api.administration.setRole, {
+          accountId: modId,
+          role: "admin",
+        }),
+      ).rejects.toThrow("FORBIDDEN")
+      await expect(
+        actor.mutation(api.administration.setRole, {
+          accountId: adminId,
+          role: "spectator",
+        }),
+      ).rejects.toThrow("FORBIDDEN")
+    }
+    await expect(
+      admin.mutation(api.administration.setRole, {
+        accountId: adminId,
+        role: "moderator",
+      }),
+    ).rejects.toThrow("SELF_DEMOTION_FORBIDDEN")
+    expect(await t.run((ctx) => ctx.db.get(adminId))).toMatchObject({
+      role: "admin",
+    })
+    expect(await t.run((ctx) => ctx.db.get(modId))).toMatchObject({
+      role: "moderator",
+    })
   })
 })
 describe("session lifecycle and handoff", () => {
@@ -407,6 +496,90 @@ describe("positions, observations and clocks", () => {
     const rows = await t.run((ctx) => ctx.db.query("positions").collect())
     expect(rows[0]?.accuracyMeters).toBeUndefined()
     expect(rows[0]?.speedMps).toBeUndefined()
+  })
+  it("validates current device observations against server time without rejuvenating them on receipt", async () => {
+    const { t, publicUser, groupId } = await setup()
+    const measurement = {
+      groupId,
+      requestId: "fresh-device-reading",
+      latitude: 16.24,
+      longitude: -61.53,
+      observedAt: now,
+    }
+    for (const observedAt of [
+      now - policy.maxSampleAgeMs - 1,
+      now + policy.maxFutureSkewMs + 1,
+      Number.NaN,
+    ]) {
+      await expect(
+        publicUser.mutation(api.observations.create, {
+          ...measurement,
+          observedAt,
+        }),
+      ).rejects.toThrow("INVALID_OBSERVATION_TIME")
+    }
+    expect(
+      await t.run((ctx) => ctx.db.query("positions").collect()),
+    ).toHaveLength(0)
+    vi.setSystemTime(now + 1000)
+    const id = await publicUser.mutation(api.observations.create, measurement)
+    vi.setSystemTime(now + 2000)
+    expect(
+      await publicUser.mutation(api.observations.create, measurement),
+    ).toBe(id)
+    expect(await t.run((ctx) => ctx.db.get(id))).toMatchObject({
+      source: "community",
+      observedAt: now,
+      receivedAt: now + 1000,
+    })
+    const catalog = await t.query(api.catalog.list, {})
+    const position =
+      catalog.groups.find((group) => group.id === groupId)?.position ?? null
+    expect(
+      positionFreshness(position, catalog.policy, now + policy.hideAfterMs),
+    ).toBe("hidden")
+  })
+  it("looks up a declaration receipt only within the authenticated account", async () => {
+    const { t, publicUser, bob, observe, groupId } = await setup()
+    await expect(
+      t.query(api.observations.byRequest, { requestId: "observation-1" }),
+    ).rejects.toThrow("AUTH_REQUIRED")
+    const newcomer = t.withIdentity(claims("New spectator", "f"))
+    expect(
+      await newcomer.query(api.observations.byRequest, {
+        requestId: "observation-1",
+      }),
+    ).toBeNull()
+    const id = await observe()
+    expect(
+      await publicUser.query(api.observations.byRequest, {
+        requestId: "observation-1",
+      }),
+    ).toEqual({ positionId: id, groupId, observedAt: now })
+    expect(
+      await bob.query(api.observations.byRequest, {
+        requestId: "observation-1",
+      }),
+    ).toBeNull()
+    const ownId = await bob.mutation(api.observations.create, {
+      groupId,
+      requestId: "observation-1",
+      latitude: 16.25,
+      longitude: -61.52,
+      observedAt: now,
+    })
+    expect(ownId).not.toBe(id)
+    expect(
+      await bob.query(api.observations.byRequest, {
+        requestId: "observation-1",
+      }),
+    ).toEqual({ positionId: ownId, groupId, observedAt: now })
+    await publicUser.mutation(api.authSessions.revokeCurrentSession, {})
+    await expect(
+      publicUser.query(api.observations.byRequest, {
+        requestId: "observation-1",
+      }),
+    ).rejects.toThrow("AUTH_REVOKED")
   })
   it("rejects observations while live even when the current point is stale", async () => {
     const { start, observe, alice } = await setup()
@@ -800,7 +973,7 @@ describe("races and operational views", () => {
         ?.position?.id,
     ).toBe(current)
   })
-  it("limits the moderation feed and prevents directory access by a moderator or spectator", async () => {
+  it("limits the moderation feed and shares the minimal directory with moderators", async () => {
     const { admin, mod, publicUser, observe, start } = await setup()
     await observe()
     const session = await start()
@@ -813,8 +986,11 @@ describe("races and operational views", () => {
     expect(JSON.stringify(directory)).not.toMatch(
       /sid|issuer|subject|tokenIdentifier|pushToken/,
     )
+    expect(await mod.query(api.administration.readAdminDirectory, {})).toEqual(
+      directory,
+    )
     await expect(
-      mod.query(api.administration.readAdminDirectory, {}),
+      publicUser.query(api.administration.readAdminDirectory, {}),
     ).rejects.toThrow("FORBIDDEN")
     await expect(
       publicUser.query(api.administration.moderationQueue, {}),
@@ -832,6 +1008,57 @@ describe("races and operational views", () => {
     await expect(
       mod.query(api.administration.moderationQueue, { limit: 101 }),
     ).rejects.toThrow("INVALID_LIMIT")
+  })
+  it("seeds an optional local moderator idempotently without replacing existing roles", async () => {
+    const t = convexTest(schema, modules)
+    const fixtureArgs = {
+      issuer: "http://localhost:3000",
+      adminSubject: "simulation-admin",
+      moderatorSubject: "simulation-moderator",
+      referentSubject: "simulation-referent",
+      otherReferentSubject: "simulation-other-referent",
+      spectatorSubject: "simulation-spectator",
+    }
+    vi.stubEnv("ALLOW_LOCAL_FIXTURES", "true")
+    vi.stubEnv("AUTH_ISSUER_URL", fixtureArgs.issuer)
+    try {
+      const first = await t.mutation(
+        internal.localFixtures.seedScenario,
+        fixtureArgs,
+      )
+      const moderatorId = first.accounts.moderator
+      if (!moderatorId) throw new Error("missing fixture moderator")
+      expect(await t.run((ctx) => ctx.db.get(moderatorId))).toMatchObject({
+        displayName: "[SIMULATION] moderator",
+        role: "moderator",
+      })
+      expect(
+        await t.mutation(internal.localFixtures.seedScenario, fixtureArgs),
+      ).toEqual(first)
+      await t.run((ctx) => ctx.db.patch(moderatorId, { role: "spectator" }))
+      await t.mutation(internal.localFixtures.seedScenario, fixtureArgs)
+      expect((await t.run((ctx) => ctx.db.get(moderatorId)))?.role).toBe(
+        "spectator",
+      )
+      await expect(
+        t.mutation(internal.localFixtures.seedScenario, {
+          ...fixtureArgs,
+          moderatorSubject: fixtureArgs.adminSubject,
+        }),
+      ).rejects.toThrow("FIXTURE_SUBJECTS_MUST_DIFFER")
+      const { moderatorSubject: _moderatorSubject, ...legacyArgs } = fixtureArgs
+      const legacy = await t.mutation(
+        internal.localFixtures.seedScenario,
+        legacyArgs,
+      )
+      expect(legacy.accounts.moderator).toBeUndefined()
+      expect(legacy.groupId).toBe(first.groupId)
+      expect(
+        await t.run((ctx) => ctx.db.query("accounts").collect()),
+      ).toHaveLength(5)
+    } finally {
+      vi.unstubAllEnvs()
+    }
   })
   it("does not provision local simulation data when the local guard is absent", async () => {
     const { t } = await setup()

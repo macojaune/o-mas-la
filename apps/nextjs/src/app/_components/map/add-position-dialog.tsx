@@ -25,14 +25,8 @@ import { useGeolocation } from "~/hooks/useGeolocation"
 
 const draftKey = "omasla-observation-draft"
 const networkAvailable = () => navigator.onLine
-interface ObservationPoint {
-  latitude: number
-  longitude: number
-  observedAt: number
-}
 interface Draft {
   groupId: string
-  point: ObservationPoint | null
 }
 
 function readDraft(): Draft | null {
@@ -43,15 +37,7 @@ function readDraft(): Draft | null {
     if (!value || typeof value !== "object") return null
     const draft = value as Partial<Draft>
     if (typeof draft.groupId !== "string") return null
-    const point = draft.point
-    if (
-      point &&
-      (!Number.isFinite(point.latitude) ||
-        !Number.isFinite(point.longitude) ||
-        !Number.isFinite(point.observedAt))
-    )
-      return null
-    return { groupId: draft.groupId, point: point ?? null }
+    return { groupId: draft.groupId }
   } catch {
     return null
   }
@@ -92,45 +78,48 @@ export function AddPositionDialog({
 }) {
   const { status } = useSession()
   const {
-    position,
     error: locationError,
     isLocating,
     requestPosition,
+    reset,
   } = useGeolocation()
   const [selectedGroup, setSelectedGroup] = useState("")
-  const [point, setPoint] = useState<ObservationPoint | null>(null)
   const [isSubmitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const request = useRef<{ id: string; content: string } | null>(null)
+  const request = useRef<{ id: string; groupId: string } | null>(null)
   const selected = catalog.data?.groups.find(
     (group) => group.id === selectedGroup,
   )
+  const latest = useRef({ selected, status })
+  latest.current = { selected, status }
 
   useEffect(() => {
     const saved = readDraft()
     if (saved) {
       setSelectedGroup(saved.groupId)
-      setPoint(saved.point)
     }
     if (new URLSearchParams(window.location.search).get("declaration") === "1")
       onOpenChange(true)
   }, [onOpenChange])
 
+  const attempt = useRef(0)
   useEffect(() => {
-    if (position)
-      setPoint({
-        latitude: position.coords.latitude,
-        longitude: position.coords.longitude,
-        observedAt: position.timestamp,
-      })
-  }, [position])
+    if (!isOpen) {
+      attempt.current += 1
+      setSubmitting(false)
+      reset()
+    }
+    return () => {
+      attempt.current += 1
+    }
+  }, [isOpen, reset])
 
   async function connect() {
     setError(null)
     try {
       sessionStorage.setItem(
         draftKey,
-        JSON.stringify({ groupId: selectedGroup, point }),
+        JSON.stringify({ groupId: selectedGroup }),
       )
       const providers = await getProviders()
       if (!providers || Object.keys(providers).length === 0) {
@@ -151,7 +140,14 @@ export function AddPositionDialog({
       setError("Les déclarations sont bloquées hors ligne.")
       return
     }
-    if (status !== "authenticated" || !point || !selected?.canObserve) return
+    if (
+      status !== "authenticated" ||
+      !selected ||
+      (!selected.canObserve && request.current?.groupId !== selected.id) ||
+      isSubmitting
+    )
+      return
+    const currentAttempt = ++attempt.current
     setSubmitting(true)
     try {
       const auth = await fetch("/api/auth/convex-token", {
@@ -164,27 +160,68 @@ export function AddPositionDialog({
       if (!auth.ok) throw new Error("Session invalid")
       const body = (await auth.json()) as { token?: unknown }
       if (typeof body.token !== "string") throw new Error("Session invalid")
-      if (!networkAvailable()) throw new Error("Network unavailable")
-      const content = JSON.stringify({ groupId: selected.id, ...point })
-      if (request.current?.content !== content)
-        request.current = { content, id: crypto.randomUUID() }
+      if (!networkAvailable() || currentAttempt !== attempt.current) return
       const client = new ConvexHttpClient(env.NEXT_PUBLIC_CONVEX_URL)
       client.setAuth(body.token)
-      // HTTP has no durable/offline mutation queue. A retry uses the same idempotency key.
-      await client.mutation(api.observations.create, {
-        groupId: selected.id,
-        ...point,
-        requestId: request.current.id,
+      if (request.current?.groupId !== selected.id)
+        request.current = { groupId: selected.id, id: crypto.randomUUID() }
+      const requestId = request.current.id
+      const acknowledge = () => {
+        sessionStorage.removeItem(draftKey)
+        request.current = null
+        toast.success("Ton observation a été enregistrée avec son heure.")
+        onOpenChange(false)
+      }
+      // A lost response is confirmed first; a retry never republishes an old GPS fix.
+      const published = await client.query(api.observations.byRequest, {
+        requestId,
       })
-      sessionStorage.removeItem(draftKey)
-      request.current = null
-      setPoint(null)
-      toast.success("Ton observation a été publiée avec son heure.")
-      onOpenChange(false)
+      if (currentAttempt !== attempt.current) return
+      if (published?.groupId === selected.id) {
+        acknowledge()
+        return
+      }
+      if (!latest.current.selected?.canObserve) {
+        setError(
+          "Ce groupe est maintenant en live. La déclaration est bloquée.",
+        )
+        return
+      }
+      const position = await requestPosition()
+      if (
+        !position ||
+        currentAttempt !== attempt.current ||
+        latest.current.status !== "authenticated"
+      )
+        return
+      if (!networkAvailable()) throw new Error("Network unavailable")
+      const point = {
+        latitude: position.coords.latitude,
+        longitude: position.coords.longitude,
+        observedAt: position.timestamp,
+      }
+      try {
+        // Direct HTTP has no durable/offline mutation queue.
+        await client.mutation(api.observations.create, {
+          groupId: selected.id,
+          ...point,
+          requestId,
+        })
+      } catch (failure) {
+        const confirmed = networkAvailable()
+          ? await client
+              .query(api.observations.byRequest, { requestId })
+              .catch(() => null)
+          : null
+        if (confirmed?.groupId !== selected.id) throw failure
+      }
+      if (currentAttempt !== attempt.current) return
+      acknowledge()
     } catch (failure) {
-      setError(observationError(failure))
+      if (currentAttempt === attempt.current)
+        setError(observationError(failure))
     } finally {
-      setSubmitting(false)
+      if (currentAttempt === attempt.current) setSubmitting(false)
     }
   }
 
@@ -194,8 +231,9 @@ export function AddPositionDialog({
         <DialogHeader>
           <DialogTitle>Déclarer la position d'un groupe</DialogTitle>
           <DialogDescription>
-            Publie une observation si tu vois le groupe près de toi. Pendant le
-            live, seul son référent partage sa position.
+            Publie seulement si le groupe est près de toi : ta position actuelle
+            et l’heure du relevé seront partagées. Pendant le live, seul le
+            référent partage sa position.
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-3">
@@ -203,6 +241,7 @@ export function AddPositionDialog({
           <select
             id="observation-group"
             value={selectedGroup}
+            disabled={isSubmitting}
             onChange={(event) => {
               setSelectedGroup(event.target.value)
               setError(null)
@@ -240,32 +279,10 @@ export function AddPositionDialog({
               </Button>
             </>
           ) : (
-            <>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={requestPosition}
-                disabled={
-                  isLocating || !catalog.online || !selected?.canObserve
-                }
-              >
-                {isLocating
-                  ? "Recherche de position…"
-                  : point
-                    ? "Actualiser ma position"
-                    : "Utiliser ma position"}
-              </Button>
-              {point && (
-                <p className="text-sm text-muted-foreground">
-                  Position relevée à{" "}
-                  {new Date(point.observedAt).toLocaleTimeString("fr-FR", {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
-                  . Publie seulement si le groupe se trouve à cet endroit.
-                </p>
-              )}
-            </>
+            <p className="text-sm text-muted-foreground">
+              La localisation sera demandée à l’envoi. Aucun ancien relevé ne
+              sera publié et l’heure ne peut pas être modifiée.
+            </p>
           )}
           {!catalog.online && (
             <p
@@ -295,13 +312,16 @@ export function AddPositionDialog({
             disabled={
               status !== "authenticated" ||
               !catalog.online ||
-              !point ||
-              !selected?.canObserve ||
+              !selected ||
+              (!selected.canObserve &&
+                request.current?.groupId !== selected.id) ||
               isSubmitting
             }
           >
             {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}{" "}
-            Publier l'observation
+            {isLocating
+              ? "Recherche de position…"
+              : "Publier ma position actuelle"}
           </Button>
         </DialogFooter>
       </DialogContent>

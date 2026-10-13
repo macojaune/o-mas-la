@@ -27,7 +27,7 @@ export function friendlyError(error: unknown) {
   )
     return "Ce groupe est maintenant suivi en direct. La déclaration n’a pas été publiée."
   if (message.includes("INVALID_OBSERVATION_TIME"))
-    return "Cette heure ne peut pas être publiée. Vérifiez l’heure de votre observation."
+    return "L’heure du relevé n’a pas été acceptée. Vérifiez la date et l’heure automatiques du téléphone, puis réessayez avec une nouvelle position."
   if (/SESSION_ENDED|HANDOFF_NOT_AVAILABLE|EMITTER_REVOKED/.test(message))
     return "Ce suivi ou cette proposition de relais n’est plus disponible. Actualisez votre espace."
   if (/AUTH_|UNAUTHENTICATED|TOKEN|Connectez/i.test(message))

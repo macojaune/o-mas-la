@@ -20,6 +20,7 @@ const values = {
   DB_URL: `file:${resolve(root, ".cache/omasla-auth.db")}`,
   AUTH_SECRET: randomBytes(32).toString("hex"),
   AUTH_ISSUER_URL: "http://localhost:3185",
+  AUTH_URL: "http://localhost:3185",
   AUTH_JWT_PRIVATE_KEY: JSON.stringify(privateKey),
   AUTH_JWT_KEY_ID: "local-development",
   CONVEX_URL: "http://127.0.0.1:3210",

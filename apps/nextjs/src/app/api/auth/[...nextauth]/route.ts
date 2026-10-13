@@ -1,6 +1,7 @@
 import type { NextRequest } from "next/server"
 import { NextResponse } from "next/server"
 
+import type { AuthRequestContext } from "@oyo/auth/request-context"
 import {
   handlers,
   invalidateSessionToken,
@@ -13,8 +14,10 @@ import {
   createNativeGrant,
   NATIVE_COOKIE_NAME,
   NATIVE_FLOW_SECONDS,
+  pendingNativeGrantId,
   sessionCookieValue,
 } from "@oyo/auth/native"
+import { authRequestContext } from "@oyo/auth/request-context"
 import { sessionId } from "@oyo/auth/tokens"
 
 export const runtime = "nodejs"
@@ -58,7 +61,15 @@ export const POST = async (req: NextRequest) => {
       )
     }
   }
-  return handlers.POST(req)
+  if (
+    req.nextUrl.pathname === "/api/auth/signin/email" &&
+    req.headers.get("origin") !== env.AUTH_ISSUER_URL
+  )
+    return NextResponse.json(
+      { error: "invalid_signin_origin" },
+      { status: 403 },
+    )
+  return handleAuth(req, "POST")
 }
 
 export const GET = async (
@@ -89,15 +100,31 @@ export const GET = async (
     const response = await handlers.GET(req)
     response.headers.append(
       "Set-Cookie",
-      `${NATIVE_COOKIE_NAME}=${grant.id}; Path=/api/auth; HttpOnly; SameSite=Lax; Max-Age=${NATIVE_FLOW_SECONDS}${isSecureContext ? "; Secure" : ""}`,
+      `${NATIVE_COOKIE_NAME}=${grant.id}; Path=/api/auth; HttpOnly; SameSite=${isSecureContext ? "None; Secure" : "Lax"}; Max-Age=${NATIVE_FLOW_SECONDS}`,
     )
     response.headers.set("Cache-Control", "no-store")
     return response
   }
 
-  const nativeCookie = req.cookies.get(NATIVE_COOKIE_NAME)
-  if (action === "callback" && nativeCookie) {
-    const authResponse = await handlers.GET(req)
+  return handleAuth(req, "GET")
+}
+
+async function handleAuth(req: NextRequest, method: "GET" | "POST") {
+  const context: AuthRequestContext = {
+    nativeGrantId: await pendingNativeGrantId(
+      req.cookies.get(NATIVE_COOKIE_NAME)?.value,
+    ),
+  }
+  return authRequestContext.run(context, async () => {
+    const authResponse = await handlers[method](req)
+    const isCallback = req.nextUrl.pathname.startsWith("/api/auth/callback/")
+    // Email uses the grant bound to the consumed token, not a cookie from an
+    // unrelated browser. OAuth (including Apple's form_post) uses its flow cookie.
+    const grantId =
+      req.nextUrl.pathname === "/api/auth/callback/email"
+        ? context.usedNativeGrantId
+        : req.cookies.get(NATIVE_COOKIE_NAME)?.value
+    if (!isCallback || !grantId) return authResponse
     const sessionToken = sessionCookieValue(authResponse.headers.getSetCookie())
     const location = authResponse.headers.get("location")
     const providerFailed =
@@ -107,7 +134,7 @@ export const GET = async (
       new URL(location, req.url).searchParams.has("error")
     const grant =
       !providerFailed && sessionToken
-        ? await completeNativeGrant(nativeCookie.value, sessionToken)
+        ? await completeNativeGrant(grantId, sessionToken)
         : null
     if (!grant) {
       const response = NextResponse.json(
@@ -119,7 +146,7 @@ export const GET = async (
         maxAge: 0,
         httpOnly: true,
         secure: isSecureContext,
-        sameSite: "lax",
+        sameSite: isSecureContext ? "none" : "lax",
       })
       return response
     }
@@ -134,12 +161,10 @@ export const GET = async (
       maxAge: 0,
       httpOnly: true,
       secure: isSecureContext,
-      sameSite: "lax",
+      sameSite: isSecureContext ? "none" : "lax",
     })
     response.headers.set("Cache-Control", "no-store")
     response.headers.set("Referrer-Policy", "no-referrer")
     return response
-  }
-
-  return handlers.GET(req)
+  })
 }

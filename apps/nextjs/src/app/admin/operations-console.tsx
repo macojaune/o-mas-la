@@ -299,13 +299,12 @@ function Console({
           ))}
         </ul>
       </Section>
-      {role === "admin" && (
-        <Administration
-          currentAccountId={currentAccountId}
-          disabled={disabled}
-          run={run}
-        />
-      )}
+      <Administration
+        canManageTeamRoles={role === "admin"}
+        currentAccountId={currentAccountId}
+        disabled={disabled}
+        run={run}
+      />
     </>
   )
 }
@@ -326,10 +325,12 @@ type Run = (
 ) => Promise<void>
 
 function Administration({
+  canManageTeamRoles,
   currentAccountId,
   disabled,
   run,
 }: {
+  canManageTeamRoles: boolean
   currentAccountId: Id<"accounts">
   disabled: boolean
   run: Run
@@ -444,42 +445,46 @@ function Administration({
                 </li>
               ))}
             </ul>
-            <h3 className="pt-4 font-semibold">Rôles de l’équipe</h3>
-            <div className="grid gap-3 sm:grid-cols-2">
-              {directory.accounts.map((account) => (
-                <label key={account.id} className="space-y-1">
-                  {account.displayName}
-                  <select
-                    className={field}
-                    value={account.role}
-                    disabled={disabled || account.id === currentAccountId}
-                    onChange={(event) => {
-                      const role = event.target.value as
-                        | "spectator"
-                        | "moderator"
-                        | "admin"
-                      if (
-                        window.confirm(
-                          `Changer le rôle de ${account.displayName} ?`,
-                        )
-                      )
-                        void run(
-                          (client) =>
-                            client.mutation(api.administration.setRole, {
-                              accountId: account.id,
-                              role,
-                            }),
-                          "Rôle mis à jour.",
-                        )
-                    }}
-                  >
-                    <option value="spectator">Spectateur / référent</option>
-                    <option value="moderator">Modérateur</option>
-                    <option value="admin">Administrateur</option>
-                  </select>
-                </label>
-              ))}
-            </div>
+            {canManageTeamRoles && (
+              <>
+                <h3 className="pt-4 font-semibold">Rôles de l’équipe</h3>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {directory.accounts.map((account) => (
+                    <label key={account.id} className="space-y-1">
+                      {account.displayName}
+                      <select
+                        className={field}
+                        value={account.role}
+                        disabled={disabled || account.id === currentAccountId}
+                        onChange={(event) => {
+                          const role = event.target.value as
+                            | "spectator"
+                            | "moderator"
+                            | "admin"
+                          if (
+                            window.confirm(
+                              `Changer le rôle de ${account.displayName} ?`,
+                            )
+                          )
+                            void run(
+                              (client) =>
+                                client.mutation(api.administration.setRole, {
+                                  accountId: account.id,
+                                  role,
+                                }),
+                              "Rôle mis à jour.",
+                            )
+                        }}
+                      >
+                        <option value="spectator">Spectateur / référent</option>
+                        <option value="moderator">Modérateur</option>
+                        <option value="admin">Administrateur</option>
+                      </select>
+                    </label>
+                  ))}
+                </div>
+              </>
+            )}
           </>
         )}
       </Section>

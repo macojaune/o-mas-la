@@ -1,14 +1,38 @@
 import { v } from "convex/values"
 
-import { mutation } from "./_generated/server"
+import { mutation, query } from "./_generated/server"
 import { currentLive } from "./lib/live"
 import {
   coordinates,
   ensureAccount,
   fail,
+  findAccount,
   nonempty,
   requireModerator,
 } from "./lib/security"
+
+// Read-only receipt lookup after a lost response; it never refreshes or republishes a point.
+export const byRequest = query({
+  args: { requestId: v.string() },
+  handler: async (ctx, { requestId }) => {
+    const { account } = await findAccount(ctx)
+    nonempty(requestId)
+    if (!account) return null
+    const position = await ctx.db
+      .query("positions")
+      .withIndex("by_account_request", (q) =>
+        q.eq("accountId", account._id).eq("requestId", requestId),
+      )
+      .unique()
+    return position
+      ? {
+          positionId: position._id,
+          groupId: position.group,
+          observedAt: position.observedAt ?? null,
+        }
+      : null
+  },
+})
 
 export const create = mutation({
   args: {
@@ -16,6 +40,7 @@ export const create = mutation({
     requestId: v.string(),
     latitude: v.number(),
     longitude: v.number(),
+    // Timestamp of the fresh device GPS reading; client metadata is not proof of location.
     observedAt: v.number(),
   },
   handler: async (ctx, args) => {

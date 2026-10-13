@@ -58,10 +58,11 @@ beforeAll(async () => {
   fixtureDirectory = await mkdtemp(join(tmpdir(), "omasla-auth-test-"))
   vi.stubEnv("DB_URL", `file:${join(fixtureDirectory, "auth.sqlite")}`)
   vi.stubEnv("NODE_ENV", "development")
-  vi.stubEnv("AUTH_DISCORD_ID", "fixture-discord-id")
-  vi.stubEnv("AUTH_DISCORD_SECRET", "fixture-discord-secret")
+  vi.stubEnv("AUTH_GOOGLE_ID", "fixture-google-id")
+  vi.stubEnv("AUTH_GOOGLE_SECRET", "fixture-google-secret")
   vi.stubEnv("AUTH_SECRET", "fixture-auth-secret-at-least-32-characters")
   vi.stubEnv("AUTH_ISSUER_URL", "http://localhost:3000")
+  vi.stubEnv("AUTH_URL", "http://localhost:3000")
   vi.stubEnv("AUTH_JWT_KEY_ID", "fixture-key")
   vi.stubEnv("CONVEX_URL", "https://fixture.convex.cloud")
   const { privateKey } = await generateKeyPair("RS256", { extractable: true })
@@ -78,6 +79,12 @@ beforeAll(async () => {
     "utf8",
   )
   for (const statement of nativeMigration.split("--> statement-breakpoint"))
+    await db.run(sql.raw(statement))
+  const emailMigration = await readFile(
+    new URL("../../db/drizzle/0002_email_auth.sql", import.meta.url),
+    "utf8",
+  )
+  for (const statement of emailMigration.split("--> statement-breakpoint"))
     await db.run(sql.raw(statement))
   native = await import("./native")
   tokens = await import("./tokens")
@@ -141,6 +148,35 @@ function providerSuccess() {
     }),
   )
 }
+
+it("completes Apple's form_post callback through the same secure native bridge", async () => {
+  const pending = await grant()
+  provider.post.mockResolvedValue(
+    new Response(null, {
+      status: 302,
+      headers: {
+        Location: "http://localhost:3000/map",
+        "Set-Cookie": `authjs.session-token=${sessionToken}; HttpOnly; Path=/`,
+      },
+    }),
+  )
+  const response = await callback.POST(
+    new NextRequest("http://localhost:3000/api/auth/callback/apple", {
+      method: "POST",
+      headers: {
+        Cookie: `omasla-native-auth=${pending.id}`,
+        "Content-Type": "application/x-www-form-urlencoded",
+        Origin: "https://appleid.apple.com",
+      },
+      body: "state=provider-validated-fixture&code=fixture",
+    }),
+  )
+  const target = new URL(response.headers.get("location") ?? "")
+  expect(`${target.protocol}//${target.host}`).toBe("omasla://login")
+  expect(target.searchParams.get("code")).toBe(pending.id)
+  expect(target.searchParams.get("state")).toBe(clientState)
+  expect(target.searchParams.has("session_token")).toBe(false)
+})
 
 describe("strict native protocol", () => {
   it("allows only the exact application callback", () => {

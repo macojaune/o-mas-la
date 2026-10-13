@@ -9,6 +9,7 @@ export const seedScenario = internalMutation({
   args: {
     issuer: v.string(),
     adminSubject: v.string(),
+    moderatorSubject: v.optional(v.string()),
     referentSubject: v.string(),
     otherReferentSubject: v.string(),
     spectatorSubject: v.string(),
@@ -23,6 +24,15 @@ export const seedScenario = internalMutation({
       return fail("LOCAL_FIXTURES_DISABLED")
     const principals = [
       { key: "admin", subject: args.adminSubject, role: "admin" as const },
+      ...(args.moderatorSubject === undefined
+        ? []
+        : [
+            {
+              key: "moderator",
+              subject: args.moderatorSubject,
+              role: "moderator" as const,
+            },
+          ]),
       {
         key: "referent",
         subject: args.referentSubject,

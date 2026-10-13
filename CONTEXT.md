@@ -11,7 +11,7 @@ Un groupe de carnaval référencé dans l'annuaire, qu'une position soit disponi
 Une personne qui consulte les groupes et leurs positions, sans compte obligatoire. Elle devient contributeur lorsqu'elle publie une observation avec son compte.
 
 **Déclaration** :
-Une observation communautaire datée, publiée immédiatement par un contributeur lorsque le groupe n'a pas de session live active. La modération peut la retirer.
+Une observation communautaire datée, publiée immédiatement par un contributeur lorsque le groupe n'a pas de session live active. Le point est la position actuelle du téléphone et l’heure est celle de ce relevé ; aucun placement manuel ou horaire saisi. La modération peut la retirer.
 _Éviter_ : Contestation du live, correction officielle.
 
 **Référent habilité** :
@@ -48,7 +48,10 @@ Le rayon de suivi centré sur Pointe-à-Pitre, adaptable aux sorties vers les co
 Un dépassement durable du seuil de vitesse retenu pour détecter un référent reparti en véhicule. Il entraîne un arrêt automatique après avertissement ; seuil, durée et délai restent à calibrer.
 
 **Modération** :
-L'équipe habilitée à retirer des déclarations et à arrêter un live depuis l'admin. Une permanence est prévue pendant les sorties.
+L'équipe habilitée à retirer des déclarations, arrêter un live, habiliter/révoquer les référents et modifier les réglages de suivi depuis la console. Une permanence est prévue pendant les sorties. L’attribution des rôles de l’équipe reste administrateur.
 
 **Consultation hors ligne** :
 L'accès aux dernières données déjà chargées, avec leur âge et un état hors ligne visible. Elle ne permet pas de publier ni de mettre en attente une déclaration du spectateur.
+
+**Connexion publique** :
+Google, Apple et e-mail. Le parcours e-mail utilise un lien de connexion sans mot de passe. Ces comptes sont reliés à la même identité serveur utilisée par l’app Expo/React Native et les API.

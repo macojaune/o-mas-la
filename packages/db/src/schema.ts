@@ -6,6 +6,7 @@ import {
   primaryKey,
   sqliteTable,
   text,
+  uniqueIndex,
 } from "drizzle-orm/sqlite-core"
 import { createInsertSchema } from "drizzle-zod"
 import { z } from "zod"
@@ -31,15 +32,26 @@ export const CreatePostSchema = createInsertSchema(Post, {
   updatedAt: true,
 })
 
-export const User = sqliteTable("user", {
-  id: text("id").notNull().primaryKey(),
-  name: text("name", { length: 255 }),
-  email: text("email", { length: 255 }).notNull(),
-  emailVerified: int("emailVerified", {
-    mode: "timestamp",
-  }).default(sql`(unixepoch())`),
-  image: text("image", { length: 255 }),
-})
+export const User = sqliteTable(
+  "user",
+  {
+    id: text("id")
+      .notNull()
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    name: text("name", { length: 255 }),
+    email: text("email", { length: 255 }).notNull(),
+    emailVerified: int("emailVerified", {
+      mode: "timestamp",
+    }).default(sql`(unixepoch())`),
+    image: text("image", { length: 255 }),
+  },
+  (table) => ({
+    emailUnique: uniqueIndex("user_email_unique").on(
+      sql`lower(${table.email})`,
+    ),
+  }),
+)
 
 export const UsersRelations = relations(User, ({ many }) => ({
   accounts: many(Account),
@@ -100,4 +112,26 @@ export const NativeAuthGrant = sqliteTable("native_auth_grant", {
   clientState: text("client_state").notNull(),
   expires: int("expires", { mode: "timestamp" }).notNull(),
   sessionToken: text("session_token"),
+})
+
+// Auth.js stores only a hash of the one-time email token. Native continuation is
+// bound at issuance, so opening the email in another browser keeps the PKCE flow.
+export const VerificationToken = sqliteTable(
+  "verification_token",
+  {
+    identifier: text("identifier").notNull(),
+    token: text("token").notNull(),
+    expires: int("expires", { mode: "timestamp" }).notNull(),
+    nativeGrantId: text("native_grant_id"),
+  },
+  (table) => ({
+    compoundKey: primaryKey({ columns: [table.identifier, table.token] }),
+  }),
+)
+
+// Email addresses are HMACed before being used in this short-lived quota table.
+export const AuthEmailLimit = sqliteTable("auth_email_limit", {
+  key: text("key").primaryKey(),
+  count: int("count").notNull(),
+  expires: int("expires", { mode: "timestamp" }).notNull(),
 })

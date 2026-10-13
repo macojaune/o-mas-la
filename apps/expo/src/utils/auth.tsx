@@ -7,11 +7,12 @@ import {
   useMemo,
   useState,
 } from "react"
-import { AppState } from "react-native"
+import { AppState, Linking } from "react-native"
 import NetInfo from "@react-native-community/netinfo"
 
 import type { NativeUser } from "./auth-client"
 import {
+  completeNativeSignIn,
   currentUser,
   fetchConvexAccessToken,
   nativeSignIn,
@@ -22,6 +23,7 @@ interface NativeAuthState {
   isLoading: boolean
   isAuthenticated: boolean
   user: NativeUser | null
+  error: string | null
   signIn: () => Promise<boolean>
   signOut: () => Promise<void>
   fetchAccessToken: (options?: {
@@ -34,6 +36,7 @@ const AuthContext = createContext<NativeAuthState | null>(null)
 export function NativeAuthProvider({ children }: PropsWithChildren) {
   const [user, setUser] = useState<NativeUser | null>(null)
   const [isLoading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const fetchAccessToken = useCallback(
     async (options?: { forceRefreshToken?: boolean }) => {
       const token = await fetchConvexAccessToken(options)
@@ -44,6 +47,27 @@ export function NativeAuthProvider({ children }: PropsWithChildren) {
   )
   useEffect(() => {
     let mounted = true
+    const complete = async (url: string | null) => {
+      if (!url?.startsWith("omasla://login")) return
+      if (mounted) {
+        setLoading(true)
+        setError(null)
+      }
+      try {
+        if (await completeNativeSignIn(url)) {
+          if (mounted) setUser(currentUser())
+        }
+      } catch (reason) {
+        if (mounted)
+          setError(
+            reason instanceof Error
+              ? reason.message
+              : "La connexion n’a pas abouti.",
+          )
+      } finally {
+        if (mounted) setLoading(false)
+      }
+    }
     const restore = () => {
       void fetchConvexAccessToken()
         .then((token) => {
@@ -57,6 +81,12 @@ export function NativeAuthProvider({ children }: PropsWithChildren) {
         })
     }
     restore()
+    void Linking.getInitialURL()
+      .then(complete)
+      .catch(() => undefined)
+    const link = Linking.addEventListener("url", ({ url }) => {
+      void complete(url)
+    })
     const unsubscribeNetwork = NetInfo.addEventListener((state) => {
       if (state.isConnected && state.isInternetReachable !== false) restore()
     })
@@ -67,9 +97,11 @@ export function NativeAuthProvider({ children }: PropsWithChildren) {
       mounted = false
       unsubscribeNetwork()
       foreground.remove()
+      link.remove()
     }
   }, [])
   const signIn = useCallback(async () => {
+    setError(null)
     const success = await nativeSignIn()
     if (success) setUser(currentUser())
     return success
@@ -83,11 +115,12 @@ export function NativeAuthProvider({ children }: PropsWithChildren) {
       isLoading,
       isAuthenticated: !!user,
       user,
+      error,
       signIn,
       signOut,
       fetchAccessToken,
     }),
-    [isLoading, user, signIn, signOut, fetchAccessToken],
+    [isLoading, user, error, signIn, signOut, fetchAccessToken],
   )
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }

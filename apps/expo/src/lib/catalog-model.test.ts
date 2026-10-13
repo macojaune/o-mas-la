@@ -12,7 +12,6 @@ import {
   positionLabel,
   visiblePosition,
 } from "./catalog-model"
-import { observationTime } from "./observation-time"
 import {
   canTransmit,
   createTrackingTransitions,
@@ -116,21 +115,6 @@ describe("public snapshot without network or account", () => {
       "destination=16.24,-61.53&travelmode=walking",
     )
   })
-})
-describe("observation time is never silently moved to yesterday", () => {
-  const now = new Date(2026, 9, 13, 0, 5, 30).getTime()
-  it("accepts today's earlier observation and rejects a future time across midnight", () => {
-    expect(observationTime("00:03", now)).toBe(
-      new Date(2026, 9, 13, 0, 3).getTime(),
-    )
-    expect(observationTime("23:59", now)).toBeNull()
-  })
-  it.each(["24:00", "12:60", "3:00", "", "tomorrow"])(
-    "rejects invalid entry %s",
-    (entry) => {
-      expect(observationTime(entry, now)).toBeNull()
-    },
-  )
 })
 describe("stored emitter never resumes automatically after a terminal condition", () => {
   const record = {

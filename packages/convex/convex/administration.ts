@@ -13,7 +13,7 @@ import { policyValidator, roleValidator } from "./schema"
 export const setPolicy = mutation({
   args: { policy: policyValidator },
   handler: async (ctx, { policy }) => {
-    const { account } = await requireAdmin(ctx)
+    const { account } = await requireModerator(ctx)
     coordinates(policy.zone.latitude, policy.zone.longitude)
     const positive = [
       policy.freshForMs,
@@ -53,7 +53,7 @@ export const setPolicy = mutation({
 export const getPolicy = query({
   args: {},
   handler: async (ctx) => {
-    await requireAdmin(ctx)
+    await requireModerator(ctx)
     return await ctx.db.query("trackingPolicies").order("desc").first()
   },
 })
@@ -81,7 +81,7 @@ export const setRole = mutation({
 export const grantReferent = mutation({
   args: { accountId: v.id("accounts"), groupId: v.id("groups") },
   handler: async (ctx, args) => {
-    const { account } = await requireAdmin(ctx)
+    const { account } = await requireModerator(ctx)
     if (
       !(await ctx.db.get(args.accountId)) ||
       !(await ctx.db.get(args.groupId))
@@ -126,7 +126,7 @@ export const grantReferent = mutation({
 export const revokeReferent = mutation({
   args: { accountId: v.id("accounts"), groupId: v.id("groups") },
   handler: async (ctx, args) => {
-    const { account } = await requireAdmin(ctx)
+    const { account } = await requireModerator(ctx)
     const existing = await ctx.db
       .query("groupReferents")
       .withIndex("by_account_group", (q) =>
@@ -203,7 +203,7 @@ export const bootstrapAdministrator = internalMutation({
 export const readAdminDirectory = query({
   args: {},
   handler: async (ctx) => {
-    await requireAdmin(ctx)
+    await requireModerator(ctx)
     const accounts = (await ctx.db.query("accounts").collect()).map(
       (account) => ({
         id: account._id,
