@@ -39,6 +39,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
   experiments: { typedRoutes: true },
   plugins: [
+    "@maplibre/maplibre-react-native",
     "expo-router",
     "expo-secure-store",
     [
@@ -56,7 +57,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         isAndroidBackgroundLocationEnabled: true,
         isAndroidForegroundServiceEnabled: true,
         locationWhenInUsePermission:
-          "Votre position sert uniquement lorsque vous choisissez de déclarer un groupe ou de partager son suivi.",
+          "Votre position permet de vous retrouver sur la carte, de déclarer un groupe ou de partager son suivi, uniquement à votre demande.",
         locationAlwaysAndWhenInUsePermission:
           "En tant que référent, partagez la position de votre groupe même lorsque l’écran est verrouillé, jusqu’à l’arrêt du suivi.",
       },

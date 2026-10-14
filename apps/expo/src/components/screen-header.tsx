@@ -1,4 +1,4 @@
-import { Pressable, View } from "react-native"
+import { Pressable, StyleSheet, View } from "react-native"
 import { useRouter } from "expo-router"
 
 import { Icon, Label, usePalette } from "~/theme/ui"
@@ -7,35 +7,49 @@ export default function ScreenHeader({ title }: { title: string }) {
   const c = usePalette()
   const router = useRouter()
   return (
-    <View
-      style={{
-        flexDirection: "row",
-        alignItems: "center",
-        gap: 12,
-        paddingHorizontal: 16,
-        paddingVertical: 8,
-        borderBottomWidth: 1,
-        borderBottomColor: c.line,
-      }}
-    >
+    <View style={[s.header, { backgroundColor: c.surface }]}>
+      <View style={s.balance} />
+      <Label accessibilityRole="header" style={s.title}>
+        {title}
+      </Label>
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel="Retour"
+        accessibilityLabel="Fermer"
         onPress={() =>
           router.canGoBack() ? router.back() : router.replace("/")
         }
-        style={{
-          width: 44,
-          height: 44,
-          alignItems: "center",
-          justifyContent: "center",
-        }}
+        style={({ pressed }) => [
+          s.close,
+          { backgroundColor: pressed ? c.line : c.background },
+        ]}
       >
-        <Icon name="back" color={c.ink} />
+        <Icon name="close" color={c.muted} size={19} />
       </Pressable>
-      <Label style={{ fontSize: 17, fontWeight: "700", flex: 1 }}>
-        {title}
-      </Label>
     </View>
   )
 }
+const s = StyleSheet.create({
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    minHeight: 64,
+  },
+  title: {
+    flex: 1,
+    fontSize: 17,
+    lineHeight: 23,
+    fontWeight: "600",
+    textAlign: "center",
+  },
+  balance: { width: 48 },
+  close: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+})

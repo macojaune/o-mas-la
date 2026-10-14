@@ -1,0 +1,91 @@
+{
+  "url": "https://data.geopf.fr/wfs/ows?SERVICE=WFS&VERSION=2.0.0&REQUEST=GetFeature&TYPENAMES=BDTOPO_V3%3Abatiment&BBOX=16.233%2C-61.538%2C16.241%2C-61.530%2Curn%3Aogc%3Adef%3Acrs%3AEPSG%3A%3A4326&SRSNAME=EPSG%3A4326&OUTPUTFORMAT=application%2Fjson&COUNT=5000",
+  "bbox_latlon": [
+    16.233,
+    -61.538,
+    16.241,
+    -61.53
+  ],
+  "metadata": {
+    "type": "FeatureCollection",
+    "totalFeatures": 3295,
+    "numberMatched": 3295,
+    "numberReturned": 3295,
+    "timeStamp": "2026-10-14T07:08:52.241Z",
+    "crs": {
+      "type": "name",
+      "properties": {
+        "name": "urn:ogc:def:crs:EPSG::4326"
+      }
+    }
+  },
+  "returned": 3295,
+  "height_positive": 3154,
+  "height_unknown_zero": 0,
+  "height_missing": 141,
+  "height_min": 2,
+  "height_max": 43.9,
+  "height_median": 8.1,
+  "examples": [
+    {
+      "id": "BATIMENT0000001170005405",
+      "height_m": 4,
+      "nature": "Indifférenciée",
+      "acquisition": "Photogrammétrie",
+      "geometry_type": "MultiPolygon",
+      "first_coordinate": [
+        -61.53043619,
+        16.23963574,
+        5.6
+      ]
+    },
+    {
+      "id": "BATIMENT0000001171681654",
+      "height_m": 4.5,
+      "nature": "Indifférenciée",
+      "acquisition": "Interpolation bâti BDTopo",
+      "geometry_type": "MultiPolygon",
+      "first_coordinate": [
+        -61.53047894,
+        16.23728082,
+        4.5
+      ]
+    },
+    {
+      "id": "BATIMENT0000001171681656",
+      "height_m": 4.6,
+      "nature": "Indifférenciée",
+      "acquisition": "Interpolation bâti BDTopo",
+      "geometry_type": "MultiPolygon",
+      "first_coordinate": [
+        -61.53039839,
+        16.23716729,
+        4.6
+      ]
+    },
+    {
+      "id": "BATIMENT0000001171681956",
+      "height_m": 6.8,
+      "nature": "Indifférenciée",
+      "acquisition": "Interpolation bâti BDTopo",
+      "geometry_type": "MultiPolygon",
+      "first_coordinate": [
+        -61.53034853,
+        16.23796135,
+        17.4
+      ]
+    },
+    {
+      "id": "BATIMENT0000001171681957",
+      "height_m": 5.8,
+      "nature": "Indifférenciée",
+      "acquisition": "Interpolation bâti BDTopo",
+      "geometry_type": "MultiPolygon",
+      "first_coordinate": [
+        -61.5305158,
+        16.23798601,
+        21.7
+      ]
+    }
+  ]
+}

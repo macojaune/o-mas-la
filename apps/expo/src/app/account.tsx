@@ -3,7 +3,9 @@ import {
   ActivityIndicator,
   Linking,
   Platform,
+  Pressable,
   ScrollView,
+  StyleSheet,
   View,
 } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
@@ -130,14 +132,34 @@ function Handoff({
                 {refs
                   ?.filter((ref) => ref.accountId !== accountId)
                   .map((ref) => (
-                    <Button
+                    <Pressable
                       key={ref.accountId}
-                      title={`Proposer à ${ref.displayName}`}
-                      variant="secondary"
-                      busy={busy}
-                      disabled={blocked || !canWrite}
+                      accessibilityRole="button"
+                      accessibilityLabel={`Proposer le relais à ${ref.displayName}`}
+                      accessibilityState={{
+                        disabled: busy || blocked || !canWrite,
+                        busy,
+                      }}
+                      disabled={busy || blocked || !canWrite}
                       onPress={() => void offer(ref.accountId)}
-                    />
+                      style={({ pressed }) => [
+                        s.referentRow,
+                        {
+                          borderBottomColor: c.line,
+                          opacity:
+                            busy || blocked || !canWrite
+                              ? 0.5
+                              : pressed
+                                ? 0.65
+                                : 1,
+                        },
+                      ]}
+                    >
+                      <Label style={{ color: c.primary, flex: 1 }}>
+                        Proposer à {ref.displayName}
+                      </Label>
+                      <Icon name="chevron" color={c.muted} size={16} />
+                    </Pressable>
                   ))}
                 {refs?.filter((ref) => ref.accountId !== accountId).length ===
                   0 && (
@@ -246,22 +268,43 @@ export default function Account() {
       .sort((a, b) => (b.endedAt ?? 0) - (a.endedAt ?? 0))
       .slice(0, 3) ?? []
   return (
-    <SafeAreaView style={[styles.page, { backgroundColor: c.background }]}>
+    <SafeAreaView
+      edges={
+        Platform.OS === "ios"
+          ? ["left", "right", "bottom"]
+          : ["top", "left", "right", "bottom"]
+      }
+      style={[styles.page, { backgroundColor: c.surface }]}
+    >
       <ScreenHeader title="Mon espace" />
-      <ScrollView contentContainerStyle={styles.content}>
-        <Label accessibilityRole="header" style={styles.title}>
-          {auth.isAuthenticated
-            ? `Bonjour${auth.user?.name ? ` ${auth.user.name.split(" ")[0]}` : ""}.`
-            : "Au cœur du mas."}
-        </Label>
+      <ScrollView contentContainerStyle={[styles.content, s.content]}>
+        {auth.isAuthenticated && (
+          <View style={[s.profile, { borderBottomColor: c.line }]}>
+            <Icon name="person" color={c.primary} size={42} />
+            <View style={{ flex: 1, gap: 4 }}>
+              <Label style={s.profileName}>
+                {auth.user?.name ?? "Votre compte"}
+              </Label>
+              <Label muted style={s.caption}>
+                Observations et suivi des groupes
+              </Label>
+            </View>
+          </View>
+        )}
         {auth.isLoading ? (
           <ActivityIndicator color={c.primary} />
         ) : !auth.isAuthenticated ? (
           <>
-            <Label muted>
-              Le compte te permet de déclarer une position. Si tu es référent
-              d’un groupe, retrouve ici son suivi.
-            </Label>
+            <View style={s.intro}>
+              <Icon name="person" color={c.primary} size={48} />
+              <Label accessibilityRole="header" style={s.title}>
+                Contribuer au suivi.
+              </Label>
+              <Label muted>
+                Déclarez le groupe que vous voyez près de vous. Si vous êtes
+                référent, retrouvez ici votre partage de position.
+              </Label>
+            </View>
             <Button
               title="Se connecter"
               icon="person"
@@ -269,11 +312,27 @@ export default function Account() {
               disabled={busy || !catalog.canWrite}
               onPress={() => void login()}
             />
-            <Button
-              title="Continuer sans compte"
-              variant="secondary"
-              onPress={() => router.replace("/")}
-            />
+            <Label muted style={s.caption}>
+              Apple, Google ou email, selon les options disponibles à la
+              connexion.
+            </Label>
+            {catalog.offline && (
+              <Notice tone="warning">
+                Reconnectez-vous pour accéder à votre compte.
+              </Notice>
+            )}
+            <View style={[s.guestFooter, { borderTopColor: c.line }]}>
+              <Label muted style={s.caption}>
+                Pour retrouver les groupes, aucun compte n’est nécessaire.
+              </Label>
+              <Button
+                title="Continuer sans compte"
+                variant="secondary"
+                onPress={() =>
+                  router.canGoBack() ? router.back() : router.replace("/")
+                }
+              />
+            </View>
           </>
         ) : (
           <>
@@ -284,11 +343,15 @@ export default function Account() {
               </Notice>
             )}
             <View style={styles.section}>
-              <Label style={styles.heading}>Mes groupes à suivre</Label>
-              <Label muted>
-                Le partage utilise la position de ce téléphone, même écran
-                verrouillé. Commence-le uniquement quand tu es avec le groupe.
-                Les notifications permettent de recevoir un avertissement de
+              <Label accessibilityRole="header" style={s.sectionTitle}>
+                Mes groupes à suivre
+              </Label>
+              <Label muted style={s.caption}>
+                Démarrez le partage uniquement lorsque vous êtes avec le groupe.
+                Il continue écran verrouillé.
+              </Label>
+              <Label muted style={s.caption}>
+                Autorisez les notifications pour recevoir les avertissements de
                 vitesse écran verrouillé.
               </Label>
             </View>
@@ -330,14 +393,18 @@ export default function Account() {
               return (
                 <View
                   key={group.id}
-                  style={{
-                    borderTopWidth: 1,
-                    borderColor: c.line,
-                    paddingTop: 22,
-                    gap: 14,
-                  }}
+                  style={[s.session, { borderTopColor: c.line }]}
                 >
-                  <Label style={styles.heading}>{group.title}</Label>
+                  <View style={s.sessionHeading}>
+                    <Icon
+                      name="signal"
+                      color={session ? c.primary : c.muted}
+                      size={24}
+                    />
+                    <Label style={[s.sectionTitle, { flex: 1 }]}>
+                      {group.title}
+                    </Label>
+                  </View>
                   {!session ? (
                     <Button
                       title="Démarrer le suivi"
@@ -411,12 +478,21 @@ export default function Account() {
               <View
                 style={[
                   styles.section,
-                  { borderTopWidth: 1, borderColor: c.line, paddingTop: 22 },
+                  {
+                    borderTopWidth: StyleSheet.hairlineWidth,
+                    borderColor: c.line,
+                    paddingTop: 24,
+                  },
                 ]}
               >
-                <Label style={styles.heading}>Derniers suivis</Label>
+                <Label accessibilityRole="header" style={s.sectionTitle}>
+                  Derniers suivis
+                </Label>
                 {ended.map((session) => (
-                  <View key={session.id} style={{ gap: 3, paddingVertical: 8 }}>
+                  <View
+                    key={session.id}
+                    style={[s.historyRow, { borderBottomColor: c.line }]}
+                  >
                     <Label style={{ fontWeight: "700" }}>
                       {catalog.data?.groups.find(
                         (group) => group.id === session.groupId,
@@ -432,7 +508,7 @@ export default function Account() {
                 ))}
               </View>
             )}
-            <View style={{ marginTop: 24 }}>
+            <View style={[s.logout, { borderTopColor: c.line }]}>
               <Button
                 title="Se déconnecter"
                 disabled={tracking.busy}
@@ -448,3 +524,60 @@ export default function Account() {
     </SafeAreaView>
   )
 }
+
+const s = StyleSheet.create({
+  content: { maxWidth: 600, paddingTop: 12, paddingBottom: 28, gap: 24 },
+  intro: { gap: 18, paddingTop: 14, paddingBottom: 4 },
+  title: {
+    fontSize: 28,
+    lineHeight: 34,
+    fontWeight: "700",
+    letterSpacing: -0.5,
+  },
+  caption: { fontSize: 14, lineHeight: 21 },
+  profile: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 16,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    paddingTop: 6,
+    paddingBottom: 24,
+  },
+  profileName: { fontSize: 22, lineHeight: 28, fontWeight: "600" },
+  guestFooter: {
+    gap: 16,
+    marginTop: 4,
+    paddingTop: 24,
+    borderTopWidth: StyleSheet.hairlineWidth,
+  },
+  sectionTitle: {
+    fontSize: 20,
+    lineHeight: 26,
+    fontWeight: "600",
+    letterSpacing: -0.2,
+  },
+  session: {
+    borderTopWidth: StyleSheet.hairlineWidth,
+    paddingTop: 24,
+    gap: 16,
+  },
+  sessionHeading: { flexDirection: "row", alignItems: "center", gap: 12 },
+  referentRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    minHeight: 52,
+    paddingVertical: 12,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+  },
+  historyRow: {
+    gap: 4,
+    paddingVertical: 14,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+  },
+  logout: {
+    marginTop: 8,
+    paddingTop: 24,
+    borderTopWidth: StyleSheet.hairlineWidth,
+  },
+})

@@ -1,5 +1,12 @@
 import { useEffect, useRef, useState } from "react"
-import { Linking, ScrollView, View } from "react-native"
+import {
+  ActivityIndicator,
+  Linking,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  View,
+} from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import * as Crypto from "expo-crypto"
 import * as Location from "expo-location"
@@ -116,24 +123,58 @@ export default function Observe() {
     }
   }
   return (
-    <SafeAreaView style={[styles.page, { backgroundColor: c.background }]}>
-      <ScreenHeader title="Déclarer une position" />
-      <ScrollView contentContainerStyle={styles.content}>
-        <Label style={styles.title}>{group?.title ?? "Le groupe"}</Label>
+    <SafeAreaView
+      edges={
+        Platform.OS === "ios"
+          ? ["left", "right", "bottom"]
+          : ["top", "left", "right", "bottom"]
+      }
+      style={[styles.page, { backgroundColor: c.surface }]}
+    >
+      <ScreenHeader title="Déclarer le groupe" />
+      <ScrollView
+        contentContainerStyle={[styles.content, s.content]}
+        keyboardShouldPersistTaps="handled"
+      >
+        <View style={[s.group, { borderBottomColor: c.line }]}>
+          <Icon name="pin" color={c.primary} size={26} />
+          <View style={{ flex: 1, gap: 3 }}>
+            <Label style={s.groupName}>{group?.title ?? "Le groupe"}</Label>
+            <Label muted style={s.caption}>
+              Observation du public
+            </Label>
+          </View>
+        </View>
         {success ? (
           <>
-            <Notice>
-              Votre observation a été enregistrée. Merci d’aider à retrouver le
-              groupe.
-            </Notice>
-            <Button title="Voir le groupe" onPress={() => router.back()} />
+            <View style={s.intro}>
+              <Icon name="check" color={c.success} size={40} />
+              <Label accessibilityRole="header" style={s.title}>
+                Merci pour le repère.
+              </Label>
+              <Label muted>
+                Votre observation a été enregistrée. Elle aide le public à
+                retrouver ce groupe.
+              </Label>
+            </View>
+            <Button
+              title="Retrouver le groupe"
+              onPress={() =>
+                router.canGoBack() ? router.back() : router.replace("/")
+              }
+            />
           </>
         ) : !auth.isAuthenticated ? (
           <>
-            <Label muted>
-              Connectez-vous pour partager une observation. La consultation
-              reste libre.
-            </Label>
+            <View style={s.intro}>
+              <Label accessibilityRole="header" style={s.title}>
+                Un compte pour contribuer.
+              </Label>
+              <Label muted>
+                Connectez-vous pour déclarer le groupe près de vous. Vous
+                reviendrez ici avant toute publication.
+              </Label>
+            </View>
             <Button
               title="Se connecter"
               busy={busy || auth.isLoading}
@@ -147,32 +188,61 @@ export default function Observe() {
                   .finally(() => setBusy(false))
               }}
             />
+            <Label muted style={s.caption}>
+              Apple, Google ou email, selon les options disponibles.
+            </Label>
+            {catalog.offline && (
+              <Notice tone="warning">
+                Reconnectez-vous pour vous connecter et déclarer le groupe.
+              </Notice>
+            )}
             {error && <Notice tone="error">{error}</Notice>}
           </>
         ) : !group ? (
           <Notice>Ce groupe n’est pas disponible. Revenez à la liste.</Notice>
         ) : (
           <>
-            <View
-              style={[
-                styles.section,
-                { backgroundColor: c.surface, padding: 24, borderRadius: 16 },
-              ]}
-            >
-              <Icon name="crosshair" color={c.primary} size={32} />
-              <Label style={{ fontSize: 21, fontWeight: "700" }}>
-                Le groupe est près de vous, maintenant ?
+            <View style={s.intro}>
+              <Label accessibilityRole="header" style={s.title}>
+                Le groupe est ici, maintenant ?
               </Label>
               <Label muted>
                 Publiez uniquement si vous voyez ce groupe à l’endroit où vous
-                êtes. Le téléphone relèvera votre position actuelle et l’heure
-                du relevé au moment de publier.
+                êtes.
               </Label>
+            </View>
+            <View style={[s.details, { borderColor: c.line }]}>
+              <View style={s.detailRow}>
+                <Icon name="crosshair" color={c.primary} size={23} />
+                <View style={s.detailCopy}>
+                  <Label style={s.detailTitle}>Votre position actuelle</Label>
+                  <Label muted style={s.caption}>
+                    Relevée au moment de publier
+                  </Label>
+                </View>
+              </View>
+              <View
+                style={[
+                  s.detailRow,
+                  {
+                    borderTopWidth: StyleSheet.hairlineWidth,
+                    borderTopColor: c.line,
+                  },
+                ]}
+              >
+                <Icon name="clock" color={c.primary} size={23} />
+                <View style={s.detailCopy}>
+                  <Label style={s.detailTitle}>L’heure du relevé</Label>
+                  <Label muted style={s.caption}>
+                    Ajoutée automatiquement
+                  </Label>
+                </View>
+              </View>
             </View>
             {!group.canObserve && (
               <Notice tone="warning">
-                Un suivi est en cours pour ce groupe. La déclaration est
-                indisponible.
+                Un référent suit ce groupe en direct. Les déclarations sont
+                indisponibles pendant ce suivi.
               </Notice>
             )}
             {catalog.offline && (
@@ -181,12 +251,18 @@ export default function Observe() {
                 la reconnexion.
               </Notice>
             )}
-            <Label muted style={{ fontSize: 13 }}>
-              Votre position et l’heure du relevé seront publiques. Votre nom
-              n’est pas affiché. L’autorisation de localisation est nécessaire
-              pour cette publication.
+            <Label muted style={s.caption}>
+              Votre position et l’heure seront publiques. Votre nom n’est pas
+              affiché. La localisation sera demandée à la publication.
             </Label>
-            {busy && <Notice>{phaseLabels[phase]}</Notice>}
+            {busy && (
+              <View style={s.progress} accessibilityLiveRegion="polite">
+                <ActivityIndicator color={c.primary} />
+                <Label muted style={[s.caption, { flex: 1 }]}>
+                  {phaseLabels[phase]}
+                </Label>
+              </View>
+            )}
             {error && <Notice tone="error">{error}</Notice>}
             {showSettings && (
               <Button
@@ -202,7 +278,7 @@ export default function Observe() {
               />
             )}
             {attempted && error && (
-              <Label muted style={{ fontSize: 13 }}>
+              <Label muted style={s.caption}>
                 Réessayer vérifie d’abord si votre observation a été
                 enregistrée. Sinon, une nouvelle position sera relevée.
               </Label>
@@ -224,3 +300,36 @@ export default function Observe() {
     </SafeAreaView>
   )
 }
+const s = StyleSheet.create({
+  content: { maxWidth: 600, paddingTop: 12, paddingBottom: 28, gap: 22 },
+  group: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 14,
+    paddingBottom: 20,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+  },
+  groupName: { fontSize: 21, lineHeight: 27, fontWeight: "600" },
+  intro: { gap: 12, paddingTop: 2 },
+  title: {
+    fontSize: 28,
+    lineHeight: 34,
+    fontWeight: "700",
+    letterSpacing: -0.5,
+  },
+  caption: { fontSize: 14, lineHeight: 20 },
+  details: {
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+  },
+  detailRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 14,
+    paddingVertical: 14,
+    minHeight: 68,
+  },
+  detailCopy: { flex: 1, gap: 3 },
+  detailTitle: { fontSize: 16, lineHeight: 22, fontWeight: "600" },
+  progress: { flexDirection: "row", alignItems: "center", gap: 12 },
+})

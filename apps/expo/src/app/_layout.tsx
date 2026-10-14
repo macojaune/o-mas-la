@@ -3,6 +3,7 @@ import "~/lib/background-location"
 import type { ErrorInfo, PropsWithChildren } from "react"
 import { Component } from "react"
 import { View } from "react-native"
+import { GestureHandlerRootView } from "react-native-gesture-handler"
 import { SafeAreaProvider } from "react-native-safe-area-context"
 import { Stack } from "expo-router"
 import { StatusBar } from "expo-status-bar"
@@ -63,28 +64,39 @@ function Routes() {
           contentStyle: { backgroundColor: c.background },
           animation: "slide_from_right",
         }}
-      />
+      >
+        <Stack.Screen
+          name="account"
+          options={{ presentation: "modal", animation: "slide_from_bottom" }}
+        />
+        <Stack.Screen
+          name="observe"
+          options={{ presentation: "modal", animation: "slide_from_bottom" }}
+        />
+      </Stack>
       <TrackingLifecycle />
-      <StatusBar style={c.background === "#16141b" ? "light" : "dark"} />
+      <StatusBar style={c.isDark ? "light" : "dark"} />
     </>
   )
 }
 export default function RootLayout() {
   return (
-    <SafeAreaProvider>
-      <AppBoundary>
-        {convex ? (
-          <NativeAuthProvider>
-            <ConvexProviderWithAuth client={convex} useAuth={useNativeAuth}>
-              <CatalogProvider>
-                <Routes />
-              </CatalogProvider>
-            </ConvexProviderWithAuth>
-          </NativeAuthProvider>
-        ) : (
-          <Recovery />
-        )}
-      </AppBoundary>
-    </SafeAreaProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SafeAreaProvider>
+        <AppBoundary>
+          {convex ? (
+            <NativeAuthProvider>
+              <ConvexProviderWithAuth client={convex} useAuth={useNativeAuth}>
+                <CatalogProvider>
+                  <Routes />
+                </CatalogProvider>
+              </ConvexProviderWithAuth>
+            </NativeAuthProvider>
+          ) : (
+            <Recovery />
+          )}
+        </AppBoundary>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
   )
 }

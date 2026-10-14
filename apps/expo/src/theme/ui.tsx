@@ -1,39 +1,42 @@
 import type { PropsWithChildren } from "react"
-import type { StyleProp, TextStyle, ViewStyle } from "react-native"
+import type { StyleProp, TextProps, ViewStyle } from "react-native"
 import {
   ActivityIndicator,
   Pressable,
   StyleSheet,
   Text,
   useColorScheme,
+  useWindowDimensions,
   View,
 } from "react-native"
-import Svg, { Circle, Path } from "react-native-svg"
+import { SymbolView } from "expo-symbols"
 
 const day = {
-  background: "#f7f4ee",
+  isDark: false,
+  background: "#F3F5F8",
   surface: "#ffffff",
-  ink: "#24212c",
-  muted: "#65606d",
-  line: "#ddd8e4",
-  primary: "#6021c7",
-  primarySoft: "#eee5ff",
+  ink: "#172033",
+  muted: "#5E697A",
+  line: "#E2E6EC",
+  primary: "#1765E8",
+  primarySoft: "#EAF1FF",
   primaryText: "#ffffff",
-  success: "#176446",
-  successSoft: "#e4f5ec",
-  warning: "#845007",
-  warningSoft: "#fff0d6",
+  success: "#16734C",
+  successSoft: "#E8F5EE",
+  warning: "#89550B",
+  warningSoft: "#FFF3DC",
   danger: "#b33234",
 }
 const night = {
-  background: "#16141b",
-  surface: "#211e29",
-  ink: "#f7f4ee",
-  muted: "#b9b2c3",
-  line: "#45404e",
-  primary: "#c0a1ff",
-  primarySoft: "#33234b",
-  primaryText: "#20132e",
+  isDark: true,
+  background: "#111820",
+  surface: "#202935",
+  ink: "#F3F5F8",
+  muted: "#AEBACA",
+  line: "#354354",
+  primary: "#82B3FF",
+  primarySoft: "#213855",
+  primaryText: "#101B2C",
   success: "#86d9b2",
   successSoft: "#173b30",
   warning: "#e8bd76",
@@ -43,21 +46,54 @@ const night = {
 export function usePalette() {
   return useColorScheme() === "dark" ? night : day
 }
-export type IconName =
-  | "search"
-  | "map"
-  | "list"
-  | "arrow"
-  | "back"
-  | "pin"
-  | "clock"
-  | "person"
-  | "close"
-  | "signal"
-  | "check"
-  | "refresh"
-  | "crosshair"
-  | "stop"
+const symbols = {
+  search: { ios: "magnifyingglass", android: "search", web: "search" },
+  map: { ios: "map", android: "map", web: "map" },
+  list: { ios: "list.bullet", android: "list", web: "list" },
+  arrow: { ios: "arrow.up.right", android: "north_east", web: "north_east" },
+  back: { ios: "chevron.left", android: "arrow_back", web: "arrow_back" },
+  pin: {
+    ios: "mappin.and.ellipse",
+    android: "location_on",
+    web: "location_on",
+  },
+  clock: { ios: "clock", android: "schedule", web: "schedule" },
+  person: {
+    ios: "person.crop.circle",
+    android: "account_circle",
+    web: "account_circle",
+  },
+  close: { ios: "xmark", android: "close", web: "close" },
+  signal: {
+    ios: "dot.radiowaves.left.and.right",
+    android: "sensors",
+    web: "sensors",
+  },
+  check: { ios: "checkmark", android: "check", web: "check" },
+  refresh: { ios: "arrow.clockwise", android: "refresh", web: "refresh" },
+  crosshair: { ios: "location", android: "my_location", web: "my_location" },
+  stop: { ios: "stop.fill", android: "stop", web: "stop" },
+  walk: {
+    ios: "figure.walk",
+    android: "directions_walk",
+    web: "directions_walk",
+  },
+  chevron: {
+    ios: "chevron.right",
+    android: "chevron_right",
+    web: "chevron_right",
+  },
+  down: { ios: "chevron.down", android: "expand_more", web: "expand_more" },
+  expand: { ios: "chevron.up", android: "expand_less", web: "expand_less" },
+  overview: {
+    ios: "arrow.up.left.and.arrow.down.right",
+    android: "zoom_out_map",
+    web: "zoom_out_map",
+  },
+  info: { ios: "info.circle", android: "info", web: "info" },
+  offline: { ios: "wifi.slash", android: "wifi_off", web: "wifi_off" },
+} as const
+export type IconName = keyof typeof symbols
 export function Icon({
   name,
   color,
@@ -67,41 +103,14 @@ export function Icon({
   color: string
   size?: number
 }) {
-  const paths: Record<IconName, string> = {
-    search: "m20 20-4.5-4.5",
-    map: "m3 5 6-2 6 2 6-2v16l-6 2-6-2-6 2V5Zm6-2v16m6-14v16",
-    list: "M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01",
-    arrow: "M4 12h15m-6-6 6 6-6 6",
-    back: "M20 12H5m6-6-6 6 6 6",
-    pin: "M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0Z",
-    clock: "M12 7v5l3 2",
-    person: "M4 21v-2a8 8 0 0 1 16 0v2",
-    close: "m6 6 12 12M6 18 18 6",
-    signal: "M4 16a12 12 0 0 1 16 0M7 19a8 8 0 0 1 10 0M2 12a16 16 0 0 1 20 0",
-    check: "m5 12 4 4L19 6",
-    refresh:
-      "M20 11a8 8 0 0 0-14-5L3 9m0-6v6h6m-5 4a8 8 0 0 0 14 5l3-3m0 6v-6h-6",
-    crosshair: "M12 2v4m0 12v4M2 12h4m12 0h4",
-    stop: "M6 6h12v12H6z",
-  }
   return (
-    <Svg
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke={color}
-      strokeWidth={1.8}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <Path d={paths[name]} />
-      {name === "search" && <Circle cx={10.5} cy={10.5} r={6.5} />}
-      {name === "clock" && <Circle cx={12} cy={12} r={9} />}
-      {name === "pin" && <Circle cx={12} cy={10} r={2.5} />}
-      {name === "person" && <Circle cx={12} cy={7} r={4} />}
-      {name === "crosshair" && <Circle cx={12} cy={12} r={6} />}
-    </Svg>
+    <SymbolView
+      name={symbols[name]}
+      tintColor={color}
+      size={size}
+      weight="medium"
+      style={{ width: size, height: size }}
+    />
   )
 }
 export function Label({
@@ -109,14 +118,13 @@ export function Label({
   style,
   muted = false,
   ...props
-}: PropsWithChildren<{
-  style?: StyleProp<TextStyle>
-  muted?: boolean
-  accessibilityRole?: "header"
-}>) {
+}: PropsWithChildren<TextProps & { muted?: boolean }>) {
   const c = usePalette()
+  const { fontScale } = useWindowDimensions()
   return (
     <Text
+      // Remeasure native text when Dynamic Type changes while the app is open.
+      key={fontScale}
       {...props}
       style={[styles.body, { color: muted ? c.muted : c.ink }, style]}
     >
@@ -142,6 +150,7 @@ export function Button({
   testID?: string
 }) {
   const c = usePalette()
+  const { fontScale } = useWindowDimensions()
   const color =
     variant === "primary"
       ? c.primaryText
@@ -158,9 +167,9 @@ export function Button({
       style={({ pressed }) => [
         styles.button,
         {
-          backgroundColor: variant === "primary" ? c.primary : c.surface,
+          backgroundColor: variant === "primary" ? c.primary : c.primarySoft,
           borderColor: variant === "primary" ? c.primary : c.line,
-          opacity: disabled || busy ? 0.48 : pressed ? 0.75 : 1,
+          opacity: disabled || busy ? 0.5 : pressed ? 0.72 : 1,
         },
       ]}
     >
@@ -169,7 +178,9 @@ export function Button({
       ) : icon ? (
         <Icon name={icon} color={color} size={20} />
       ) : null}
-      <Text style={[styles.buttonText, { color }]}>{title}</Text>
+      <Text key={fontScale} style={[styles.buttonText, { color }]}>
+        {title}
+      </Text>
     </Pressable>
   )
 }
@@ -209,12 +220,12 @@ export function Notice({
   )
 }
 export const styles = StyleSheet.create({
-  body: { fontSize: 16, lineHeight: 24 },
+  body: { fontSize: 17, lineHeight: 25 },
   title: {
     fontSize: 32,
-    lineHeight: 37,
-    fontWeight: "800",
-    letterSpacing: -0.8,
+    lineHeight: 38,
+    fontWeight: "700",
+    letterSpacing: -0.6,
   },
   heading: {
     fontSize: 22,
@@ -234,8 +245,8 @@ export const styles = StyleSheet.create({
   row: { flexDirection: "row", alignItems: "center", gap: 12 },
   button: {
     minHeight: 52,
-    borderRadius: 14,
-    borderWidth: 1,
+    borderRadius: 16,
+    borderWidth: 0,
     paddingHorizontal: 18,
     paddingVertical: 13,
     flexDirection: "row",
@@ -243,7 +254,13 @@ export const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  buttonText: { fontSize: 16, lineHeight: 22, fontWeight: "700" },
+  buttonText: {
+    fontSize: 16,
+    lineHeight: 22,
+    fontWeight: "700",
+    flexShrink: 1,
+    textAlign: "center",
+  },
   notice: { padding: 16, borderRadius: 12 },
   input: {
     minHeight: 52,
