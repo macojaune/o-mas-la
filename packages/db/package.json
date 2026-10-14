@@ -31,9 +31,10 @@
     "with-env": "dotenv -e ../../.env --"
   },
   "dependencies": {
+    "@auth/core": "0.41.3",
     "@libsql/client": "^0.14.0",
     "@vercel/postgres": "^0.10.0",
-    "convex": "^1.17.4",
+    "convex": "1.46.0",
     "drizzle-orm": "^0.36.4",
     "drizzle-zod": "^0.5.1",
     "zod": "catalog:"

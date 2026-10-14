@@ -1,55 +1,102 @@
-import "@bacons/text-decoder/install"
+import "~/lib/background-location"
 
-import * as Notifications from "expo-notifications"
+import type { ErrorInfo, PropsWithChildren } from "react"
+import { Component } from "react"
+import { View } from "react-native"
+import { GestureHandlerRootView } from "react-native-gesture-handler"
+import { SafeAreaProvider } from "react-native-safe-area-context"
 import { Stack } from "expo-router"
 import { StatusBar } from "expo-status-bar"
-import * as TaskManager from "expo-task-manager"
-import { ConvexProvider, ConvexReactClient } from "convex/react"
-import { useColorScheme } from "nativewind"
+import { ConvexProviderWithAuth, ConvexReactClient } from "convex/react"
 
-import { TRPCProvider } from "~/utils/api"
+import TrackingLifecycle from "~/components/tracking-lifecycle"
+import { CatalogProvider } from "~/lib/catalog"
+import { Button, Label, styles, usePalette } from "~/theme/ui"
+import { NativeAuthProvider, useNativeAuth } from "~/utils/auth"
 
-import "~/styles.css"
-
-import { useEffect } from "react"
-
-const convex = new ConvexReactClient(process.env.EXPO_PUBLIC_CONVEX_URL!, {
-  unsavedChangesWarning: false,
-})
-
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldSetBadge: true,
-  }),
-})
-
-export default function RootLayout() {
-  const { colorScheme } = useColorScheme()
-
-  useEffect(() => {
-    return () => {
-      console.log("kill bg tasks")
-      void TaskManager.unregisterAllTasksAsync()
-    }
-  }, [])
-
+const url = process.env.EXPO_PUBLIC_CONVEX_URL
+const convex = url
+  ? new ConvexReactClient(url, { unsavedChangesWarning: false })
+  : null
+class AppBoundary extends Component<PropsWithChildren, { failed: boolean }> {
+  state = { failed: false }
+  static getDerivedStateFromError() {
+    return { failed: true }
+  }
+  componentDidCatch(_error: Error, _info: ErrorInfo) {
+    /* Do not log tokens or raw server error payloads. */
+  }
+  render() {
+    return this.state.failed ? (
+      <Recovery onRetry={() => this.setState({ failed: false })} />
+    ) : (
+      this.props.children
+    )
+  }
+}
+function Recovery({ onRetry }: { onRetry?: () => void }) {
+  const c = usePalette()
   return (
-    <ConvexProvider client={convex}>
-      <TRPCProvider>
-        <Stack
-          screenOptions={{
-            headerStyle: {
-              backgroundColor: "#f472b6",
-            },
-            contentStyle: {
-              backgroundColor: colorScheme == "dark" ? "#09090B" : "#FFFFFF",
-            },
-          }}
+    <View
+      style={[
+        styles.page,
+        { backgroundColor: c.background, justifyContent: "center" },
+      ]}
+    >
+      <View style={styles.content}>
+        <Label style={styles.title}>On revient vite.</Label>
+        <Label muted>
+          Le service de suivi est momentanément indisponible. Réessayez dans un
+          instant.
+        </Label>
+        {onRetry && <Button title="Réessayer" onPress={onRetry} />}
+      </View>
+    </View>
+  )
+}
+function Routes() {
+  const c = usePalette()
+  return (
+    <>
+      <Stack
+        screenOptions={{
+          headerShown: false,
+          contentStyle: { backgroundColor: c.background },
+          animation: "slide_from_right",
+        }}
+      >
+        <Stack.Screen
+          name="account"
+          options={{ presentation: "modal", animation: "slide_from_bottom" }}
         />
-        <StatusBar />
-      </TRPCProvider>
-    </ConvexProvider>
+        <Stack.Screen
+          name="observe"
+          options={{ presentation: "modal", animation: "slide_from_bottom" }}
+        />
+      </Stack>
+      <TrackingLifecycle />
+      <StatusBar style={c.isDark ? "light" : "dark"} />
+    </>
+  )
+}
+export default function RootLayout() {
+  return (
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SafeAreaProvider>
+        <AppBoundary>
+          {convex ? (
+            <NativeAuthProvider>
+              <ConvexProviderWithAuth client={convex} useAuth={useNativeAuth}>
+                <CatalogProvider>
+                  <Routes />
+                </CatalogProvider>
+              </ConvexProviderWithAuth>
+            </NativeAuthProvider>
+          ) : (
+            <Recovery />
+          )}
+        </AppBoundary>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
   )
 }

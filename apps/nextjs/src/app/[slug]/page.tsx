@@ -7,9 +7,9 @@ import { marked } from "marked"
 import { NavigationBar } from "../_components/map/navigation-bar"
 
 interface PostProps {
-  params: {
+  params: Promise<{
     slug: string
-  }
+  }>
 }
 
 async function getPost(slug: string) {
@@ -19,18 +19,27 @@ async function getPost(slug: string) {
       "utf-8",
     )
     const { data: frontmatter, content } = matter(markdownFile)
-    const htmlContent = marked(content)
+    const htmlContent = await marked(content)
+    const metadata = {
+      title:
+        typeof frontmatter.title === "string" ? frontmatter.title : undefined,
+      date: typeof frontmatter.date === "string" ? frontmatter.date : undefined,
+      description:
+        typeof frontmatter.description === "string"
+          ? frontmatter.description
+          : undefined,
+    }
 
     return {
-      frontmatter,
+      frontmatter: metadata,
       htmlContent,
     }
-  } catch (error) {
+  } catch {
     return null
   }
 }
 
-export async function generateStaticParams() {
+export function generateStaticParams() {
   const files = fs.readdirSync(path.join(process.cwd(), "src", "content"))
   const markdownFiles = files.filter((file) => file.endsWith(".md"))
 
@@ -40,7 +49,7 @@ export async function generateStaticParams() {
 }
 
 export default async function Post({ params }: PostProps) {
-  const post = await getPost(params.slug)
+  const post = await getPost((await params).slug)
 
   if (!post) {
     notFound()
@@ -71,7 +80,7 @@ export default async function Post({ params }: PostProps) {
 
 // Optional: Add metadata
 export async function generateMetadata({ params }: PostProps) {
-  const post = await getPost(params.slug)
+  const post = await getPost((await params).slug)
 
   if (!post) {
     return {
@@ -81,6 +90,6 @@ export async function generateMetadata({ params }: PostProps) {
 
   return {
     title: post.frontmatter.title,
-    description: post.frontmatter.description || "",
+    description: post.frontmatter.description ?? "",
   }
 }

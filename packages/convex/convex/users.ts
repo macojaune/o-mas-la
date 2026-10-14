@@ -1,90 +1,53 @@
 import { v } from "convex/values"
 
 import { mutation, query } from "./_generated/server"
+import { fail, requireAccount, requireModerator } from "./lib/security"
 
+// IDs in this historical table identify anonymous installations, never authenticated accounts.
 export const create = mutation({
   args: { pushToken: v.string() },
-  handler: async (ctx, { pushToken }) => {
-    return await ctx.db.insert("users", { pushToken })
+  handler: async (ctx) => {
+    await requireAccount(ctx)
+    return fail("LEGACY_API_DISABLED")
   },
 })
-
 export const startTracking = mutation({
   args: { userId: v.id("users"), group: v.id("groups") },
-  handler: async (ctx, { userId, group }) => {
-    // Check if there's already an active user for this group
-    const activeUser = await ctx.db
-      .query("users")
-      .filter((q) =>
-        q.and(q.eq(q.field("group"), group), q.eq(q.field("isActive"), true)),
-      )
-      .unique()
-
-    if (activeUser) {
-      // Instead of throwing, return false to indicate we couldn't start tracking
-      return false
-    }
-    // Set user as active for this group
-    await ctx.db.patch(userId, {
-      group,
-      isActive: true,
-    })
-
-    // Update group's isLive status
-    await ctx.db.patch(group, { isLive: true })
-
-    return true
+  handler: async (ctx) => {
+    await requireAccount(ctx)
+    return fail("LEGACY_API_DISABLED")
   },
 })
-
 export const stopTracking = mutation({
   args: { userId: v.id("users") },
-  handler: async (ctx, { userId }) => {
-    const user = await ctx.db.get(userId)
-    if (!user) return false
-
-    // Deactivate user
-    await ctx.db.patch(userId, {
-      isActive: false,
-    })
-
-    if (user.group) {
-      // Check if this was the last active user
-      const activeUsers = await ctx.db
+  handler: async (ctx) => {
+    await requireAccount(ctx)
+    return fail("LEGACY_API_DISABLED")
+  },
+})
+export const getActiveUsers = query({
+  args: { group: v.id("groups") },
+  handler: async (ctx, args) => {
+    await requireModerator(ctx)
+    return (
+      await ctx.db
         .query("users")
         .filter((q) =>
           q.and(
-            q.eq(q.field("group"), user.group),
+            q.eq(q.field("group"), args.group),
             q.eq(q.field("isActive"), true),
           ),
         )
         .collect()
-
-      if (activeUsers.length === 0) {
-        // todo push notif to others group members
-        await ctx.db.patch(user.group, { isLive: false })
-      }
-    }
-
-    return true
+    ).map(({ _id, group, isActive }) => ({ _id, group, isActive }))
   },
 })
-
-export const getActiveUsers = query({
-  args: { group: v.id("groups") },
-  handler: async (ctx, { group }) => {
-    return await ctx.db
-      .query("users")
-      .filter((q) =>
-        q.and(q.eq(q.field("group"), group), q.eq(q.field("isActive"), true)),
-      )
-      .collect()
-  },
-})
-
 export const getAllUsers = query({
   args: {},
   handler: async (ctx) => {
-    return await ctx.db.query("users").collect()
+    await requireModerator(ctx)
+    return (await ctx.db.query("users").collect()).map(
+      ({ _id, group, isActive }) => ({ _id, group, isActive }),
+    )
   },
 })

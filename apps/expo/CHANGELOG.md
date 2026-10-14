@@ -1,5 +1,12 @@
 # @oyo/expo
 
+## 1.2.0
+
+### Minor Changes
+
+- d10407b: feat: add intro screen
+- d10407b: feat: add animation on tracking screen
+
 ## 1.1.2
 
 ### Patch Changes

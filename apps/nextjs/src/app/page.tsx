@@ -3,7 +3,6 @@
 import Image from "next/image"
 import Link from "next/link"
 import {
-  AppleIcon,
   Heart,
   MapPin,
   Megaphone,
@@ -18,16 +17,14 @@ import { Card } from "@oyo/ui/card"
 import { ThemeToggle } from "@oyo/ui/theme"
 
 export default function HomePage() {
-  // You can await this here if you don't want to show Suspense fallback below
-  // void api.post.all.prefetch()
   const { resolvedTheme } = useTheme()
   const isDark = resolvedTheme === "dark"
   return (
-    // <HydrateClient>
     <main className="min-h-screen">
       <div className="fixed bottom-4 right-4 z-10">
         <ThemeToggle />
       </div>
+
       <section className="relative flex h-screen items-center justify-center overflow-hidden">
         <div className="absolute inset-0 z-0">
           <Image
@@ -35,9 +32,9 @@ export default function HomePage() {
             alt="background"
             width={2048}
             height={1638}
-            className="object-cover object-center"
+            className="object-fill object-center md:object-cover"
           />
-          // Hero section gradient
+          {/*// Hero section gradient*/}
           <div className="backdrop-blur-xs absolute inset-0 bg-gradient-to-b from-primary/10 to-primary/40" />
         </div>
         <div className="relative z-10 mx-auto max-w-4xl px-4 text-center">
@@ -55,6 +52,29 @@ export default function HomePage() {
               Voir la carte
             </Button>
           </Link>
+          {/* New Sponsor div */}
+          {/*<div className="mt-44 flex flex-col items-center justify-center gap-3 rounded-lg p-4 backdrop-blur-sm md:mt-12 md:flex-row">
+            <div className="text-base font-semibold text-white dark:text-gray-300">
+              Merci à
+            </div>
+            <div className="w-20">
+              <a
+                href="https://rci.fm/guadeloupe/carnaval"
+                target="_blank"
+                rel="noreferrer"
+              >
+                <Image
+                  src="/rci-logo.png"
+                  width={1776}
+                  height={1692}
+                  alt="logo RCI Guadeloupe"
+                />
+              </a>
+            </div>
+            <div className="text-base font-semibold text-white dark:text-gray-300">
+              de soutenir le projet durant les jours gras.
+            </div>
+          </div>*/}
         </div>
       </section>
       {/* How it Works Section */}
@@ -138,7 +158,7 @@ export default function HomePage() {
                 </div>
               ))}
             </div>
-            <div className="flex flex-row items-center justify-between gap-4">
+            <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
               <a
                 href="https://apps.apple.com/fr/app/o-mas-la/id6740550162"
                 target="_blank"
@@ -208,7 +228,7 @@ export default function HomePage() {
           </a>
         </p>
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-2 gap-8 md:grid-cols-3">
+          <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
             <div>
               <h3 className="mb-4 text-lg font-semibold">Contact</h3>
               <ul className="space-y-2">

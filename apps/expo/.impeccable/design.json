@@ -1,0 +1,928 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-14T08:12:39.772107+00:00",
+  "title": "Design System: O Mas La — application native",
+  "extensions": {
+    "colorMeta": {
+      "background": {
+        "role": "neutral",
+        "displayName": "Fond — jour",
+        "tonalRamp": [
+          "oklch(15% 0.00454 258.32)",
+          "oklch(26% 0.00454 258.32)",
+          "oklch(38% 0.00454 258.32)",
+          "oklch(49% 0.00454 258.32)",
+          "oklch(61% 0.00454 258.32)",
+          "oklch(72% 0.00454 258.32)",
+          "oklch(84% 0.00454 258.32)",
+          "oklch(95% 0.00454 258.32)"
+        ]
+      },
+      "surface": {
+        "role": "neutral",
+        "displayName": "Surface — jour",
+        "tonalRamp": [
+          "oklch(15% 0.00000 89.88)",
+          "oklch(26% 0.00000 89.88)",
+          "oklch(38% 0.00000 89.88)",
+          "oklch(49% 0.00000 89.88)",
+          "oklch(61% 0.00000 89.88)",
+          "oklch(72% 0.00000 89.88)",
+          "oklch(84% 0.00000 89.88)",
+          "oklch(95% 0.00000 89.88)"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Encre — jour",
+        "tonalRamp": [
+          "oklch(15% 0.03877 264.35)",
+          "oklch(26% 0.03877 264.35)",
+          "oklch(38% 0.03877 264.35)",
+          "oklch(49% 0.03877 264.35)",
+          "oklch(61% 0.03877 264.35)",
+          "oklch(72% 0.03877 264.35)",
+          "oklch(84% 0.03877 264.35)",
+          "oklch(95% 0.03877 264.35)"
+        ]
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "Texte secondaire — jour",
+        "tonalRamp": [
+          "oklch(15% 0.03014 259.03)",
+          "oklch(26% 0.03014 259.03)",
+          "oklch(38% 0.03014 259.03)",
+          "oklch(49% 0.03014 259.03)",
+          "oklch(61% 0.03014 259.03)",
+          "oklch(72% 0.03014 259.03)",
+          "oklch(84% 0.03014 259.03)",
+          "oklch(95% 0.03014 259.03)"
+        ]
+      },
+      "line": {
+        "role": "neutral",
+        "displayName": "Séparation — jour",
+        "tonalRamp": [
+          "oklch(15% 0.00920 258.34)",
+          "oklch(26% 0.00920 258.34)",
+          "oklch(38% 0.00920 258.34)",
+          "oklch(49% 0.00920 258.34)",
+          "oklch(61% 0.00920 258.34)",
+          "oklch(72% 0.00920 258.34)",
+          "oklch(84% 0.00920 258.34)",
+          "oklch(95% 0.00920 258.34)"
+        ]
+      },
+      "primary": {
+        "role": "primary",
+        "displayName": "Bleu d’action — jour",
+        "tonalRamp": [
+          "oklch(15% 0.21148 260.73)",
+          "oklch(26% 0.21148 260.73)",
+          "oklch(38% 0.21148 260.73)",
+          "oklch(49% 0.21148 260.73)",
+          "oklch(61% 0.21148 260.73)",
+          "oklch(72% 0.21148 260.73)",
+          "oklch(84% 0.21148 260.73)",
+          "oklch(95% 0.21148 260.73)"
+        ]
+      },
+      "primary-soft": {
+        "role": "primary",
+        "displayName": "Bleu de surface — jour",
+        "tonalRamp": [
+          "oklch(15% 0.02027 264.47)",
+          "oklch(26% 0.02027 264.47)",
+          "oklch(38% 0.02027 264.47)",
+          "oklch(49% 0.02027 264.47)",
+          "oklch(61% 0.02027 264.47)",
+          "oklch(72% 0.02027 264.47)",
+          "oklch(84% 0.02027 264.47)",
+          "oklch(95% 0.02027 264.47)"
+        ]
+      },
+      "primary-text": {
+        "role": "primary",
+        "displayName": "Texte d’action — jour",
+        "tonalRamp": [
+          "oklch(15% 0.00000 89.88)",
+          "oklch(26% 0.00000 89.88)",
+          "oklch(38% 0.00000 89.88)",
+          "oklch(49% 0.00000 89.88)",
+          "oklch(61% 0.00000 89.88)",
+          "oklch(72% 0.00000 89.88)",
+          "oklch(84% 0.00000 89.88)",
+          "oklch(95% 0.00000 89.88)"
+        ]
+      },
+      "success": {
+        "role": "secondary",
+        "displayName": "Vert de position — jour",
+        "tonalRamp": [
+          "oklch(15% 0.10430 159.70)",
+          "oklch(26% 0.10430 159.70)",
+          "oklch(38% 0.10430 159.70)",
+          "oklch(49% 0.10430 159.70)",
+          "oklch(61% 0.10430 159.70)",
+          "oklch(72% 0.10430 159.70)",
+          "oklch(84% 0.10430 159.70)",
+          "oklch(95% 0.10430 159.70)"
+        ]
+      },
+      "warning": {
+        "role": "secondary",
+        "displayName": "Ambre d’ancienneté — jour",
+        "tonalRamp": [
+          "oklch(15% 0.10500 67.78)",
+          "oklch(26% 0.10500 67.78)",
+          "oklch(38% 0.10500 67.78)",
+          "oklch(49% 0.10500 67.78)",
+          "oklch(61% 0.10500 67.78)",
+          "oklch(72% 0.10500 67.78)",
+          "oklch(84% 0.10500 67.78)",
+          "oklch(95% 0.10500 67.78)"
+        ]
+      },
+      "warning-soft": {
+        "role": "secondary",
+        "displayName": "Ambre de surface — jour",
+        "tonalRamp": [
+          "oklch(15% 0.03282 83.71)",
+          "oklch(26% 0.03282 83.71)",
+          "oklch(38% 0.03282 83.71)",
+          "oklch(49% 0.03282 83.71)",
+          "oklch(61% 0.03282 83.71)",
+          "oklch(72% 0.03282 83.71)",
+          "oklch(84% 0.03282 83.71)",
+          "oklch(95% 0.03282 83.71)"
+        ]
+      },
+      "danger": {
+        "role": "secondary",
+        "displayName": "Rouge de retrait — jour",
+        "tonalRamp": [
+          "oklch(15% 0.16564 24.39)",
+          "oklch(26% 0.16564 24.39)",
+          "oklch(38% 0.16564 24.39)",
+          "oklch(49% 0.16564 24.39)",
+          "oklch(61% 0.16564 24.39)",
+          "oklch(72% 0.16564 24.39)",
+          "oklch(84% 0.16564 24.39)",
+          "oklch(95% 0.16564 24.39)"
+        ]
+      },
+      "night-background": {
+        "role": "neutral",
+        "displayName": "Fond — nuit",
+        "tonalRamp": [
+          "oklch(15% 0.01920 252.10)",
+          "oklch(26% 0.01920 252.10)",
+          "oklch(38% 0.01920 252.10)",
+          "oklch(49% 0.01920 252.10)",
+          "oklch(61% 0.01920 252.10)",
+          "oklch(72% 0.01920 252.10)",
+          "oklch(84% 0.01920 252.10)",
+          "oklch(95% 0.01920 252.10)"
+        ]
+      },
+      "night-surface": {
+        "role": "neutral",
+        "displayName": "Surface — nuit",
+        "tonalRamp": [
+          "oklch(15% 0.02567 255.74)",
+          "oklch(26% 0.02567 255.74)",
+          "oklch(38% 0.02567 255.74)",
+          "oklch(49% 0.02567 255.74)",
+          "oklch(61% 0.02567 255.74)",
+          "oklch(72% 0.02567 255.74)",
+          "oklch(84% 0.02567 255.74)",
+          "oklch(95% 0.02567 255.74)"
+        ]
+      },
+      "night-ink": {
+        "role": "neutral",
+        "displayName": "Encre — nuit",
+        "tonalRamp": [
+          "oklch(15% 0.00454 258.32)",
+          "oklch(26% 0.00454 258.32)",
+          "oklch(38% 0.00454 258.32)",
+          "oklch(49% 0.00454 258.32)",
+          "oklch(61% 0.00454 258.32)",
+          "oklch(72% 0.00454 258.32)",
+          "oklch(84% 0.00454 258.32)",
+          "oklch(95% 0.00454 258.32)"
+        ]
+      },
+      "night-muted": {
+        "role": "neutral",
+        "displayName": "Texte secondaire — nuit",
+        "tonalRamp": [
+          "oklch(15% 0.02638 255.58)",
+          "oklch(26% 0.02638 255.58)",
+          "oklch(38% 0.02638 255.58)",
+          "oklch(49% 0.02638 255.58)",
+          "oklch(61% 0.02638 255.58)",
+          "oklch(72% 0.02638 255.58)",
+          "oklch(84% 0.02638 255.58)",
+          "oklch(95% 0.02638 255.58)"
+        ]
+      },
+      "night-line": {
+        "role": "neutral",
+        "displayName": "Séparation — nuit",
+        "tonalRamp": [
+          "oklch(15% 0.03447 253.55)",
+          "oklch(26% 0.03447 253.55)",
+          "oklch(38% 0.03447 253.55)",
+          "oklch(49% 0.03447 253.55)",
+          "oklch(61% 0.03447 253.55)",
+          "oklch(72% 0.03447 253.55)",
+          "oklch(84% 0.03447 253.55)",
+          "oklch(95% 0.03447 253.55)"
+        ]
+      },
+      "night-primary": {
+        "role": "primary",
+        "displayName": "Bleu d’action — nuit",
+        "tonalRamp": [
+          "oklch(15% 0.12183 258.92)",
+          "oklch(26% 0.12183 258.92)",
+          "oklch(38% 0.12183 258.92)",
+          "oklch(49% 0.12183 258.92)",
+          "oklch(61% 0.12183 258.92)",
+          "oklch(72% 0.12183 258.92)",
+          "oklch(84% 0.12183 258.92)",
+          "oklch(95% 0.12183 258.92)"
+        ]
+      },
+      "night-primary-soft": {
+        "role": "primary",
+        "displayName": "Bleu de surface — nuit",
+        "tonalRamp": [
+          "oklch(15% 0.05916 254.87)",
+          "oklch(26% 0.05916 254.87)",
+          "oklch(38% 0.05916 254.87)",
+          "oklch(49% 0.05916 254.87)",
+          "oklch(61% 0.05916 254.87)",
+          "oklch(72% 0.05916 254.87)",
+          "oklch(84% 0.05916 254.87)",
+          "oklch(95% 0.05916 254.87)"
+        ]
+      },
+      "night-primary-text": {
+        "role": "primary",
+        "displayName": "Texte d’action — nuit",
+        "tonalRamp": [
+          "oklch(15% 0.03712 258.84)",
+          "oklch(26% 0.03712 258.84)",
+          "oklch(38% 0.03712 258.84)",
+          "oklch(49% 0.03712 258.84)",
+          "oklch(61% 0.03712 258.84)",
+          "oklch(72% 0.03712 258.84)",
+          "oklch(84% 0.03712 258.84)",
+          "oklch(95% 0.03712 258.84)"
+        ]
+      },
+      "night-success": {
+        "role": "secondary",
+        "displayName": "Vert de position — nuit",
+        "tonalRamp": [
+          "oklch(15% 0.09896 162.85)",
+          "oklch(26% 0.09896 162.85)",
+          "oklch(38% 0.09896 162.85)",
+          "oklch(49% 0.09896 162.85)",
+          "oklch(61% 0.09896 162.85)",
+          "oklch(72% 0.09896 162.85)",
+          "oklch(84% 0.09896 162.85)",
+          "oklch(95% 0.09896 162.85)"
+        ]
+      },
+      "night-warning": {
+        "role": "secondary",
+        "displayName": "Ambre d’ancienneté — nuit",
+        "tonalRamp": [
+          "oklch(15% 0.10191 79.16)",
+          "oklch(26% 0.10191 79.16)",
+          "oklch(38% 0.10191 79.16)",
+          "oklch(49% 0.10191 79.16)",
+          "oklch(61% 0.10191 79.16)",
+          "oklch(72% 0.10191 79.16)",
+          "oklch(84% 0.10191 79.16)",
+          "oklch(95% 0.10191 79.16)"
+        ]
+      },
+      "night-warning-soft": {
+        "role": "secondary",
+        "displayName": "Ambre de surface — nuit",
+        "tonalRamp": [
+          "oklch(15% 0.04305 75.12)",
+          "oklch(26% 0.04305 75.12)",
+          "oklch(38% 0.04305 75.12)",
+          "oklch(49% 0.04305 75.12)",
+          "oklch(61% 0.04305 75.12)",
+          "oklch(72% 0.04305 75.12)",
+          "oklch(84% 0.04305 75.12)",
+          "oklch(95% 0.04305 75.12)"
+        ]
+      },
+      "night-danger": {
+        "role": "secondary",
+        "displayName": "Rouge de retrait — nuit",
+        "tonalRamp": [
+          "oklch(15% 0.12247 18.95)",
+          "oklch(26% 0.12247 18.95)",
+          "oklch(38% 0.12247 18.95)",
+          "oklch(49% 0.12247 18.95)",
+          "oklch(61% 0.12247 18.95)",
+          "oklch(72% 0.12247 18.95)",
+          "oklch(84% 0.12247 18.95)",
+          "oklch(95% 0.12247 18.95)"
+        ]
+      },
+      "night-map-land": {
+        "role": "neutral",
+        "displayName": "night-map-land",
+        "tonalRamp": [
+          "oklch(15% 0.01907 218.66)",
+          "oklch(26% 0.01907 218.66)",
+          "oklch(38% 0.01907 218.66)",
+          "oklch(49% 0.01907 218.66)",
+          "oklch(61% 0.01907 218.66)",
+          "oklch(72% 0.01907 218.66)",
+          "oklch(84% 0.01907 218.66)",
+          "oklch(95% 0.01907 218.66)"
+        ]
+      },
+      "night-map-sand": {
+        "role": "neutral",
+        "displayName": "night-map-sand",
+        "tonalRamp": [
+          "oklch(15% 0.01591 171.45)",
+          "oklch(26% 0.01591 171.45)",
+          "oklch(38% 0.01591 171.45)",
+          "oklch(49% 0.01591 171.45)",
+          "oklch(61% 0.01591 171.45)",
+          "oklch(72% 0.01591 171.45)",
+          "oklch(84% 0.01591 171.45)",
+          "oklch(95% 0.01591 171.45)"
+        ]
+      },
+      "night-map-green": {
+        "role": "neutral",
+        "displayName": "night-map-green",
+        "tonalRamp": [
+          "oklch(15% 0.03631 171.49)",
+          "oklch(26% 0.03631 171.49)",
+          "oklch(38% 0.03631 171.49)",
+          "oklch(49% 0.03631 171.49)",
+          "oklch(61% 0.03631 171.49)",
+          "oklch(72% 0.03631 171.49)",
+          "oklch(84% 0.03631 171.49)",
+          "oklch(95% 0.03631 171.49)"
+        ]
+      },
+      "night-map-mangrove": {
+        "role": "neutral",
+        "displayName": "night-map-mangrove",
+        "tonalRamp": [
+          "oklch(15% 0.04490 182.50)",
+          "oklch(26% 0.04490 182.50)",
+          "oklch(38% 0.04490 182.50)",
+          "oklch(49% 0.04490 182.50)",
+          "oklch(61% 0.04490 182.50)",
+          "oklch(72% 0.04490 182.50)",
+          "oklch(84% 0.04490 182.50)",
+          "oklch(95% 0.04490 182.50)"
+        ]
+      },
+      "night-map-water": {
+        "role": "neutral",
+        "displayName": "night-map-water",
+        "tonalRamp": [
+          "oklch(15% 0.05041 215.78)",
+          "oklch(26% 0.05041 215.78)",
+          "oklch(38% 0.05041 215.78)",
+          "oklch(49% 0.05041 215.78)",
+          "oklch(61% 0.05041 215.78)",
+          "oklch(72% 0.05041 215.78)",
+          "oklch(84% 0.05041 215.78)",
+          "oklch(95% 0.05041 215.78)"
+        ]
+      },
+      "night-map-shallows": {
+        "role": "neutral",
+        "displayName": "night-map-shallows",
+        "tonalRamp": [
+          "oklch(15% 0.05211 208.33)",
+          "oklch(26% 0.05211 208.33)",
+          "oklch(38% 0.05211 208.33)",
+          "oklch(49% 0.05211 208.33)",
+          "oklch(61% 0.05211 208.33)",
+          "oklch(72% 0.05211 208.33)",
+          "oklch(84% 0.05211 208.33)",
+          "oklch(95% 0.05211 208.33)"
+        ]
+      },
+      "night-map-road": {
+        "role": "neutral",
+        "displayName": "night-map-road",
+        "tonalRamp": [
+          "oklch(15% 0.01944 215.62)",
+          "oklch(26% 0.01944 215.62)",
+          "oklch(38% 0.01944 215.62)",
+          "oklch(49% 0.01944 215.62)",
+          "oklch(61% 0.01944 215.62)",
+          "oklch(72% 0.01944 215.62)",
+          "oklch(84% 0.01944 215.62)",
+          "oklch(95% 0.01944 215.62)"
+        ]
+      },
+      "night-map-road-edge": {
+        "role": "neutral",
+        "displayName": "night-map-road-edge",
+        "tonalRamp": [
+          "oklch(15% 0.02212 214.83)",
+          "oklch(26% 0.02212 214.83)",
+          "oklch(38% 0.02212 214.83)",
+          "oklch(49% 0.02212 214.83)",
+          "oklch(61% 0.02212 214.83)",
+          "oklch(72% 0.02212 214.83)",
+          "oklch(84% 0.02212 214.83)",
+          "oklch(95% 0.02212 214.83)"
+        ]
+      },
+      "night-map-path": {
+        "role": "neutral",
+        "displayName": "night-map-path",
+        "tonalRamp": [
+          "oklch(15% 0.01571 148.67)",
+          "oklch(26% 0.01571 148.67)",
+          "oklch(38% 0.01571 148.67)",
+          "oklch(49% 0.01571 148.67)",
+          "oklch(61% 0.01571 148.67)",
+          "oklch(72% 0.01571 148.67)",
+          "oklch(84% 0.01571 148.67)",
+          "oklch(95% 0.01571 148.67)"
+        ]
+      },
+      "night-map-ink": {
+        "role": "neutral",
+        "displayName": "night-map-ink",
+        "tonalRamp": [
+          "oklch(15% 0.01081 158.84)",
+          "oklch(26% 0.01081 158.84)",
+          "oklch(38% 0.01081 158.84)",
+          "oklch(49% 0.01081 158.84)",
+          "oklch(61% 0.01081 158.84)",
+          "oklch(72% 0.01081 158.84)",
+          "oklch(84% 0.01081 158.84)",
+          "oklch(95% 0.01081 158.84)"
+        ]
+      },
+      "night-map-water-ink": {
+        "role": "neutral",
+        "displayName": "night-map-water-ink",
+        "tonalRamp": [
+          "oklch(15% 0.04503 189.39)",
+          "oklch(26% 0.04503 189.39)",
+          "oklch(38% 0.04503 189.39)",
+          "oklch(49% 0.04503 189.39)",
+          "oklch(61% 0.04503 189.39)",
+          "oklch(72% 0.04503 189.39)",
+          "oklch(84% 0.04503 189.39)",
+          "oklch(95% 0.04503 189.39)"
+        ]
+      },
+      "night-map-building": {
+        "role": "neutral",
+        "displayName": "night-map-building",
+        "tonalRamp": [
+          "oklch(15% 0.01867 215.55)",
+          "oklch(26% 0.01867 215.55)",
+          "oklch(38% 0.01867 215.55)",
+          "oklch(49% 0.01867 215.55)",
+          "oklch(61% 0.01867 215.55)",
+          "oklch(72% 0.01867 215.55)",
+          "oklch(84% 0.01867 215.55)",
+          "oklch(95% 0.01867 215.55)"
+        ]
+      },
+      "map-land": {
+        "role": "neutral",
+        "displayName": "map-land",
+        "tonalRamp": [
+          "oklch(15% 0.01441 84.58)",
+          "oklch(26% 0.01441 84.58)",
+          "oklch(38% 0.01441 84.58)",
+          "oklch(49% 0.01441 84.58)",
+          "oklch(61% 0.01441 84.58)",
+          "oklch(72% 0.01441 84.58)",
+          "oklch(84% 0.01441 84.58)",
+          "oklch(95% 0.01441 84.58)"
+        ]
+      },
+      "map-sand": {
+        "role": "neutral",
+        "displayName": "map-sand",
+        "tonalRamp": [
+          "oklch(15% 0.03954 87.57)",
+          "oklch(26% 0.03954 87.57)",
+          "oklch(38% 0.03954 87.57)",
+          "oklch(49% 0.03954 87.57)",
+          "oklch(61% 0.03954 87.57)",
+          "oklch(72% 0.03954 87.57)",
+          "oklch(84% 0.03954 87.57)",
+          "oklch(95% 0.03954 87.57)"
+        ]
+      },
+      "map-green": {
+        "role": "neutral",
+        "displayName": "map-green",
+        "tonalRamp": [
+          "oklch(15% 0.04379 123.25)",
+          "oklch(26% 0.04379 123.25)",
+          "oklch(38% 0.04379 123.25)",
+          "oklch(49% 0.04379 123.25)",
+          "oklch(61% 0.04379 123.25)",
+          "oklch(72% 0.04379 123.25)",
+          "oklch(84% 0.04379 123.25)",
+          "oklch(95% 0.04379 123.25)"
+        ]
+      },
+      "map-mangrove": {
+        "role": "neutral",
+        "displayName": "map-mangrove",
+        "tonalRamp": [
+          "oklch(15% 0.04312 142.96)",
+          "oklch(26% 0.04312 142.96)",
+          "oklch(38% 0.04312 142.96)",
+          "oklch(49% 0.04312 142.96)",
+          "oklch(61% 0.04312 142.96)",
+          "oklch(72% 0.04312 142.96)",
+          "oklch(84% 0.04312 142.96)",
+          "oklch(95% 0.04312 142.96)"
+        ]
+      },
+      "map-water": {
+        "role": "neutral",
+        "displayName": "map-water",
+        "tonalRamp": [
+          "oklch(15% 0.08138 205.04)",
+          "oklch(26% 0.08138 205.04)",
+          "oklch(38% 0.08138 205.04)",
+          "oklch(49% 0.08138 205.04)",
+          "oklch(61% 0.08138 205.04)",
+          "oklch(72% 0.08138 205.04)",
+          "oklch(84% 0.08138 205.04)",
+          "oklch(95% 0.08138 205.04)"
+        ]
+      },
+      "map-shallows": {
+        "role": "neutral",
+        "displayName": "map-shallows",
+        "tonalRamp": [
+          "oklch(15% 0.05626 190.01)",
+          "oklch(26% 0.05626 190.01)",
+          "oklch(38% 0.05626 190.01)",
+          "oklch(49% 0.05626 190.01)",
+          "oklch(61% 0.05626 190.01)",
+          "oklch(72% 0.05626 190.01)",
+          "oklch(84% 0.05626 190.01)",
+          "oklch(95% 0.05626 190.01)"
+        ]
+      },
+      "map-road": {
+        "role": "neutral",
+        "displayName": "map-road",
+        "tonalRamp": [
+          "oklch(15% 0.00818 91.48)",
+          "oklch(26% 0.00818 91.48)",
+          "oklch(38% 0.00818 91.48)",
+          "oklch(49% 0.00818 91.48)",
+          "oklch(61% 0.00818 91.48)",
+          "oklch(72% 0.00818 91.48)",
+          "oklch(84% 0.00818 91.48)",
+          "oklch(95% 0.00818 91.48)"
+        ]
+      },
+      "map-road-edge": {
+        "role": "neutral",
+        "displayName": "map-road-edge",
+        "tonalRamp": [
+          "oklch(15% 0.02019 87.52)",
+          "oklch(26% 0.02019 87.52)",
+          "oklch(38% 0.02019 87.52)",
+          "oklch(49% 0.02019 87.52)",
+          "oklch(61% 0.02019 87.52)",
+          "oklch(72% 0.02019 87.52)",
+          "oklch(84% 0.02019 87.52)",
+          "oklch(95% 0.02019 87.52)"
+        ]
+      },
+      "map-path": {
+        "role": "neutral",
+        "displayName": "map-path",
+        "tonalRamp": [
+          "oklch(15% 0.01641 91.55)",
+          "oklch(26% 0.01641 91.55)",
+          "oklch(38% 0.01641 91.55)",
+          "oklch(49% 0.01641 91.55)",
+          "oklch(61% 0.01641 91.55)",
+          "oklch(72% 0.01641 91.55)",
+          "oklch(84% 0.01641 91.55)",
+          "oklch(95% 0.01641 91.55)"
+        ]
+      },
+      "map-ink": {
+        "role": "neutral",
+        "displayName": "map-ink",
+        "tonalRamp": [
+          "oklch(15% 0.04087 202.75)",
+          "oklch(26% 0.04087 202.75)",
+          "oklch(38% 0.04087 202.75)",
+          "oklch(49% 0.04087 202.75)",
+          "oklch(61% 0.04087 202.75)",
+          "oklch(72% 0.04087 202.75)",
+          "oklch(84% 0.04087 202.75)",
+          "oklch(95% 0.04087 202.75)"
+        ]
+      },
+      "map-water-ink": {
+        "role": "neutral",
+        "displayName": "map-water-ink",
+        "tonalRamp": [
+          "oklch(15% 0.01176 170.28)",
+          "oklch(26% 0.01176 170.28)",
+          "oklch(38% 0.01176 170.28)",
+          "oklch(49% 0.01176 170.28)",
+          "oklch(61% 0.01176 170.28)",
+          "oklch(72% 0.01176 170.28)",
+          "oklch(84% 0.01176 170.28)",
+          "oklch(95% 0.01176 170.28)"
+        ]
+      },
+      "map-building": {
+        "role": "neutral",
+        "displayName": "map-building",
+        "tonalRamp": [
+          "oklch(15% 0.03401 86.31)",
+          "oklch(26% 0.03401 86.31)",
+          "oklch(38% 0.03401 86.31)",
+          "oklch(49% 0.03401 86.31)",
+          "oklch(61% 0.03401 86.31)",
+          "oklch(72% 0.03401 86.31)",
+          "oklch(84% 0.03401 86.31)",
+          "oklch(95% 0.03401 86.31)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "title": {
+        "displayName": "title",
+        "purpose": "Grand titre partagé de récupération."
+      },
+      "headline": {
+        "displayName": "headline",
+        "purpose": "Titres compte, déclaration et connexion."
+      },
+      "panel-title": {
+        "displayName": "panel-title",
+        "purpose": "Titre du panneau de découverte. Si fontScale > 1.3, l’annuaire affiche « Groupes » sans sous-titre décoratif ; la recherche conserve « Résultats » et le nombre de groupes trouvés. Valeurs typographiques inchangées."
+      },
+      "panel-detail-title": {
+        "displayName": "panel-detail-title",
+        "purpose": "Nom du groupe dans le panneau de détail."
+      },
+      "row-title": {
+        "displayName": "row-title",
+        "purpose": "Nom de groupe et titre modal."
+      },
+      "body": {
+        "displayName": "body",
+        "purpose": "Style de base de Label, police native implicite."
+      },
+      "button": {
+        "displayName": "button",
+        "purpose": "Texte des boutons partagés."
+      },
+      "search": {
+        "displayName": "search",
+        "purpose": "Texte du champ de recherche natif."
+      },
+      "label": {
+        "displayName": "label",
+        "purpose": "Texte des filtres."
+      },
+      "caption": {
+        "displayName": "caption",
+        "purpose": "Notices et informations complémentaires."
+      },
+      "small": {
+        "displayName": "small",
+        "purpose": "Compléments brefs."
+      },
+      "marker-title": {
+        "displayName": "marker-title",
+        "purpose": "Nom de groupe dans un repère ; agrandissement plafonné à 1.5, remesure sur changement de fontScale."
+      },
+      "marker-status": {
+        "displayName": "marker-status",
+        "purpose": "Statut et âge abrégé sur la seconde ligne de la plaque ; taille plafonnée à 1.5, remesure sur changement de fontScale."
+      },
+      "map-label": {
+        "displayName": "Libellés cartographiques",
+        "purpose": "Glyphes IGN Source Sans Pro Regular pour rues et eaux ; couche distincte de l’interface native. Les libellés de quartiers sont retirés."
+      },
+      "map-town-label": {
+        "displayName": "Noms de communes",
+        "purpose": "Glyphes IGN Source Sans Pro Bold ; taille interpolée avec le zoom."
+      }
+    },
+    "shadows": [
+      {
+        "name": "floating-material",
+        "value": "shadowColor: #172B46; shadowOffset: { width: 0, height: 4 }; shadowOpacity: 0.12; shadowRadius: 14; elevation: 5",
+        "purpose": "Valeurs React Native exactes des surfaces flottantes."
+      },
+      {
+        "name": "discovery-panel",
+        "value": "shadowColor: #14253D; shadowOffset: { width: 0, height: -3 }; shadowOpacity: day 0.13 / night 0.3; shadowRadius: 22; elevation: 12",
+        "purpose": "Valeurs React Native exactes du panneau."
+      },
+      {
+        "name": "group-banner-plaque",
+        "value": "shadowColor: #152B2A; shadowOffset: { width: 0, height: 2 }; shadowOpacity: day 0.14 / night 0.3; shadowRadius: 5; elevation: 3",
+        "purpose": "Plaque de nom, statut et âge attachée à la bannière."
+      },
+      {
+        "name": "relief-control",
+        "value": "shadowColor: #142e32; shadowOffset: { width: 0, height: 3 }; shadowOpacity: 0.12; shadowRadius: 8; elevation: 3",
+        "purpose": "Commande de pitch 2D/3D."
+      }
+    ],
+    "motion": [
+      {
+        "name": "map-camera",
+        "value": "Camera.easeTo / fitBounds; duration: reduceMotion ? 0 : 600",
+        "purpose": "Cadrage MapLibre tenant compte des surfaces superposées ; la sélection attend le cran intermédiaire sur téléphone. Les nouveaux points GPS ne reprennent pas la caméra après un geste."
+      },
+      {
+        "name": "panel-mount",
+        "value": "animateOnMount: false",
+        "purpose": "Pas d’animation de montage ; déplacement ensuite géré par la bibliothèque."
+      },
+      {
+        "name": "modal-navigation",
+        "value": "presentation: modal; animation: slide_from_bottom",
+        "purpose": "Compte et déclaration ; animation native, sans durée personnalisée."
+      },
+      {
+        "name": "stack-navigation",
+        "value": "animation: slide_from_right",
+        "purpose": "Autres routes du Stack ; animation native sans durée personnalisée."
+      },
+      {
+        "name": "selection-haptic",
+        "value": "Haptics.selectionAsync()",
+        "purpose": "Retour haptique lors de la sélection d’un groupe."
+      },
+      {
+        "name": "map-pitch",
+        "value": "Camera.setStop({ pitch: 0 | 42, duration: reduceMotion ? 0 : 450 })",
+        "purpose": "Passage coordonné du pitch et des extrusions : 0° avec hauteur nulle en 2D, 42° avec les hauteurs IGN disponibles en 3D. Même source, aucune hauteur inventée."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "wide-native",
+        "value": "700px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Bouton primary",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Traduction HTML du bouton natif ; hover et focus sont propres à cet aperçu.",
+      "html": "<button class=\"ds-button-primary\" type=\"button\">Rejoindre ce point</button>",
+      "css": ".ds-button-primary { box-sizing:border-box; display:flex; align-items:center; justify-content:center; gap:10px; min-height:52px; padding:13px 18px; border:0; border-radius:16px; background:#1765E8; color:#ffffff; font-family:system-ui,sans-serif; font-size:16px; line-height:22px; font-weight:700; text-align:center; cursor:pointer; } .ds-button-primary:hover { opacity:.9; } .ds-button-primary:active { opacity:.72; } .ds-button-primary:focus-visible { outline:2px solid #1765E8; outline-offset:3px; } .ds-button-primary:disabled { opacity:.5; cursor:default; } @media (prefers-color-scheme:dark) { .ds-button-primary { box-sizing:border-box; background:#82B3FF; color:#101B2C; } .ds-button-primary:focus-visible { outline-color:#82B3FF; } }"
+    },
+    {
+      "name": "Bouton secondary",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Traduction HTML du bouton natif ; hover et focus sont propres à cet aperçu.",
+      "html": "<button class=\"ds-button-secondary\" type=\"button\">Partager sa position ici</button>",
+      "css": ".ds-button-secondary { box-sizing:border-box; display:flex; align-items:center; justify-content:center; gap:10px; min-height:52px; padding:13px 18px; border:0; border-radius:16px; background:#EAF1FF; color:#172033; font-family:system-ui,sans-serif; font-size:16px; line-height:22px; font-weight:700; text-align:center; cursor:pointer; } .ds-button-secondary:hover { opacity:.9; } .ds-button-secondary:active { opacity:.72; } .ds-button-secondary:focus-visible { outline:2px solid #1765E8; outline-offset:3px; } .ds-button-secondary:disabled { opacity:.5; cursor:default; } @media (prefers-color-scheme:dark) { .ds-button-secondary { box-sizing:border-box; background:#213855; color:#F3F5F8; } .ds-button-secondary:focus-visible { outline-color:#82B3FF; } }"
+    },
+    {
+      "name": "Bouton danger",
+      "kind": "button",
+      "refersTo": "button-danger",
+      "description": "Traduction HTML du bouton natif ; hover et focus sont propres à cet aperçu.",
+      "html": "<button class=\"ds-button-danger\" type=\"button\">Se déconnecter</button>",
+      "css": ".ds-button-danger { box-sizing:border-box; display:flex; align-items:center; justify-content:center; gap:10px; min-height:52px; padding:13px 18px; border:0; border-radius:16px; background:#EAF1FF; color:#b33234; font-family:system-ui,sans-serif; font-size:16px; line-height:22px; font-weight:700; text-align:center; cursor:pointer; } .ds-button-danger:hover { opacity:.9; } .ds-button-danger:active { opacity:.72; } .ds-button-danger:focus-visible { outline:2px solid #1765E8; outline-offset:3px; } .ds-button-danger:disabled { opacity:.5; cursor:default; } @media (prefers-color-scheme:dark) { .ds-button-danger { box-sizing:border-box; background:#213855; color:#ff999b; } .ds-button-danger:focus-visible { outline-color:#82B3FF; } }"
+    },
+    {
+      "name": "Recherche",
+      "kind": "input",
+      "refersTo": "search-field",
+      "description": "Recherche native persistante dans le panneau commun aux résultats et à la fiche ; surface opaque background, sans flou ni ombre propres.",
+      "html": "<label class=\"ds-search\"><svg aria-hidden=\"true\" width=\"21\" height=\"21\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><circle cx=\"10.5\" cy=\"10.5\" r=\"6.5\"/><path d=\"m16 16 5 5\"/></svg><input aria-label=\"Rechercher un groupe\" placeholder=\"Chercher un groupe\" /></label>",
+      "css": ".ds-search { box-sizing:border-box; display:flex; align-items:center; gap:10px; min-height:56px; padding-left:17px; padding-right:8px; border-radius:20px; background:#F3F5F8; color:#5E697A; } .ds-search input { box-sizing:border-box; flex:1; min-width:0; min-height:54px; padding:10px 0; border:0; background:transparent; color:#172033; font-family:system-ui,sans-serif; font-size:16px; } .ds-search input::placeholder { color:#5E697A; opacity:1; } .ds-search:focus-within { outline:2px solid #1765E8; outline-offset:3px; } @media(prefers-color-scheme:dark) { .ds-search { box-sizing:border-box; background:#111820; color:#AEBACA; } .ds-search input { box-sizing:border-box; color:#F3F5F8; } .ds-search input::placeholder { color:#AEBACA; } .ds-search:focus-within { outline-color:#82B3FF; } }"
+    },
+    {
+      "name": "En-tête modal",
+      "kind": "nav",
+      "refersTo": "screen-header",
+      "description": "Titre centré et bouton de fermeture ; le comportement de navigation Expo reste hors de cet aperçu.",
+      "html": "<nav class=\"ds-header\" aria-label=\"Mon espace\"><span class=\"ds-header-balance\"></span><span class=\"ds-header-title\">Mon espace</span><button class=\"ds-header-close\" type=\"button\" aria-label=\"Fermer\"><svg aria-hidden=\"true\" width=\"19\" height=\"19\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"m6 6 12 12M18 6 6 18\"/></svg></button></nav>",
+      "css": ".ds-header { box-sizing:border-box; display:flex; align-items:center; gap:8px; min-height:64px; padding:8px 16px; background:#ffffff; color:#172033; font-family:system-ui,sans-serif; } .ds-header-balance { box-sizing:border-box; width:48px; } .ds-header-title { box-sizing:border-box; flex:1; font-size:17px; line-height:23px; font-weight:600; text-align:center; } .ds-header-close { box-sizing:border-box; display:flex; align-items:center; justify-content:center; width:48px; height:48px; border:0; border-radius:24px; background:#F3F5F8; color:#5E697A; cursor:pointer; } .ds-header-close:hover,.ds-header-close:active { background:#E2E6EC; } .ds-header-close:focus-visible { outline:2px solid #1765E8; outline-offset:2px; } @media(prefers-color-scheme:dark) { .ds-header { box-sizing:border-box; background:#202935; color:#F3F5F8; } .ds-header-close { box-sizing:border-box; background:#111820; color:#AEBACA; } .ds-header-close:hover,.ds-header-close:active { background:#354354; } .ds-header-close:focus-visible { outline-color:#82B3FF; } }"
+    },
+    {
+      "name": "Filtres de découverte",
+      "kind": "chip",
+      "refersTo": "filter-selected",
+      "description": "États choisi et ordinaire dans une rangée qui revient à la ligne. Largeur limitée au conteneur, texte réductible ; traduction documentaire HTML.",
+      "html": "<div class=\"ds-filters\"><button type=\"button\" class=\"ds-filter\" aria-pressed=\"true\"><span class=\"ds-filter-label\">Tous les groupes</span></button><button type=\"button\" class=\"ds-filter\" aria-pressed=\"false\"><svg aria-hidden=\"true\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><circle cx=\"12\" cy=\"12\" r=\"2\"/><path d=\"M7 7a7 7 0 0 0 0 10M17 7a7 7 0 0 1 0 10M4 4a11 11 0 0 0 0 16M20 4a11 11 0 0 1 0 16\"/></svg><span class=\"ds-filter-label\">En direct</span></button></div>",
+      "css": ".ds-filters { display:flex; flex-direction:row; flex-wrap:wrap; gap:8px; } .ds-filter-label { flex-shrink:1; min-width:0; } .ds-filter { box-sizing:border-box; max-width:100%; display:flex; align-items:center; justify-content:center; gap:7px; min-height:44px; padding:10px 14px; border:0; border-radius:22px; background:#EAF1FF; color:#1765E8; font-family:system-ui,sans-serif; font-size:14px; line-height:20px; font-weight:600; cursor:pointer; } .ds-filter[aria-pressed=\"false\"] { background:#F3F5F8; color:#5E697A; } .ds-filter:hover { opacity:.9; } .ds-filter:active { opacity:.65; } .ds-filter:focus-visible { outline:2px solid #1765E8; outline-offset:2px; } @media(prefers-color-scheme:dark) { .ds-filter { box-sizing:border-box; background:#213855; color:#82B3FF; } .ds-filter[aria-pressed=\"false\"] { background:#111820; color:#AEBACA; } .ds-filter:focus-visible { outline-color:#82B3FF; } }"
+    },
+    {
+      "name": "Notice d’avertissement",
+      "kind": "card",
+      "refersTo": "notice-warning",
+      "description": "Conteneur informatif non interactif. Exemple fictif de message hors ligne.",
+      "html": "<div class=\"ds-notice\" role=\"status\">Hors ligne. Les positions sont datées.</div>",
+      "css": ".ds-notice { box-sizing:border-box; padding:16px; border-radius:12px; background:#FFF3DC; color:#89550B; font-family:system-ui,sans-serif; font-size:14px; line-height:21px; } @media(prefers-color-scheme:dark) { .ds-notice { box-sizing:border-box; background:#3e2e17; color:#e8bd76; } }"
+    },
+    {
+      "name": "Ligne de groupe",
+      "kind": "custom",
+      "refersTo": "group-row",
+      "description": "Ligne native avec identité stable, nom, statut et âge ; le monogramme de cet aperçu reste fictif et n’est pas un logo officiel.",
+      "html": "<button class=\"ds-group\" type=\"button\"><span class=\"ds-group-avatar\">GD</span><span class=\"ds-group-copy\"><span class=\"ds-group-title\">Groupe exemple · démo</span><span class=\"ds-group-status\">Observation du public</span><span class=\"ds-group-age\">Il y a 2 min · exemple fictif</span></span><svg aria-hidden=\"true\" width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"m9 5 7 7-7 7\"/></svg></button>",
+      "css": ".ds-group { box-sizing:border-box; display:flex; align-items:center; gap:14px; width:100%; min-height:84px; padding:15px 0; border:0; border-bottom:1px solid #E2E6EC; background:transparent; color:#5E697A; text-align:left; font-family:system-ui,sans-serif; cursor:pointer; } .ds-group-avatar { box-sizing:border-box; display:flex; align-items:center; justify-content:center; width:48px; height:48px; flex-shrink:0; border-radius:13.44px; background:#245B8F; color:#FFFFFF; font-size:17px; line-height:25px; font-weight:700; } .ds-group-copy { box-sizing:border-box; display:flex; flex-direction:column; flex:1; gap:3px; } .ds-group-title { box-sizing:border-box; color:#172033; font-size:17px; line-height:23px; font-weight:600; } .ds-group-status { box-sizing:border-box; color:#16734C; font-size:13px; line-height:19px; } .ds-group-age { box-sizing:border-box; font-size:12px; line-height:17px; } .ds-group:hover,.ds-group:active { background:#EAF1FF; } .ds-group:focus-visible { outline:2px solid #1765E8; outline-offset:2px; } @media(prefers-color-scheme:dark) { .ds-group { box-sizing:border-box; border-color:#354354; color:#AEBACA; }  .ds-group-title { box-sizing:border-box; color:#F3F5F8; } .ds-group-status { box-sizing:border-box; color:#86d9b2; } .ds-group:hover,.ds-group:active { background:#213855; } .ds-group:focus-visible { outline-color:#82B3FF; } }"
+    },
+    {
+      "name": "Bannière de groupe sélectionnée",
+      "kind": "custom",
+      "refersTo": "group-banner-selected",
+      "description": "Traduction HTML statique de la bannière sélectionnée Tambour bleu, identité SVG réservée à la fixture Démo. Deux lignes : nom, puis statut et âge. Le pied GPS est à (10,90) dans un cadre 190×96. Sous le zoom 16, les groupes non sélectionnés passent à 44×64 sans plaque ; le groupe sélectionné garde ce modèle complet. Aucun comportement MapLibre n’est simulé.",
+      "html": "<button class=\"ds-banner\" type=\"button\" aria-label=\"Tambour bleu, démo, en direct, moins d’une minute. Voir le groupe\" aria-pressed=\"true\"><span class=\"ds-banner-pole\"></span><svg class=\"ds-banner-flag\" aria-hidden=\"true\" width=\"36\" height=\"63\" viewBox=\"0 0 36 63\"><path d=\"M0 0 36 5 36 63 18 55 0 58Z\" fill=\"#145BD6\"/><path d=\"M0 0 3 .42 3 58 0 58Z\" fill=\"#000\" fill-opacity=\".12\"/><g transform=\"translate(5 16) scale(.63)\" fill=\"none\" stroke=\"#fff\" stroke-width=\"2.1\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><ellipse cx=\"19\" cy=\"15\" rx=\"11\" ry=\"3.5\"/><path d=\"M8 15v17c4 4 18 4 22 0V15M9 19l5 12 5-11 5 11 5-12M19 14L31 3M23 15l12-3\"/></g></svg><span class=\"ds-banner-plaque\"><span class=\"ds-banner-name\">Tambour bleu</span><span class=\"ds-banner-status\"><span></span>Live · &lt; 1 min</span></span><span class=\"ds-banner-gps\"></span></button>",
+      "css": ".ds-banner { position:relative; display:block; width:190px; height:96px; padding:0; border:0; background:transparent; font-family:system-ui,sans-serif; cursor:pointer; text-align:left; } .ds-banner-pole { position:absolute; left:9px; top:3px; width:2px; height:87px; border-radius:1px; background:#3C514F; } .ds-banner-flag { position:absolute; left:11px; top:7px; } .ds-banner-plaque { position:absolute; top:7px; left:49px; right:0; display:flex; flex-direction:column; gap:3px; padding:6px 9px; border-radius:12px; background:#145BD6; color:#FFFFFF; box-shadow:0 2px 5px rgba(21,43,42,.14); } .ds-banner-name { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:13px; line-height:17px; font-weight:700; } .ds-banner-status { align-self:flex-start; max-width:100%; display:flex; align-items:center; gap:4px; color:#FFFFFF; font-size:11px; line-height:14px; font-weight:600; white-space:nowrap; } .ds-banner-status span { width:6px; height:6px; box-sizing:border-box; border-radius:3px; border:1px solid #FFFFFF; background:#16734C; } .ds-banner-gps { position:absolute; left:4px; top:84px; width:12px; height:12px; box-sizing:border-box; border-radius:6px; border:2px solid #FFFFFF; background:#145BD6; } .ds-banner:hover { opacity:.9; } .ds-banner:active { opacity:.78; } .ds-banner:focus-visible { outline:2px solid #1765E8; outline-offset:3px; } @media(prefers-color-scheme:dark) { .ds-banner-pole { background:#D0DAD7; } .ds-banner-plaque { box-shadow:0 2px 5px rgba(21,43,42,.3); } .ds-banner-status span { background:#86d9b2; } .ds-banner:focus-visible { outline-color:#82B3FF; } }"
+    },
+    {
+      "name": "Poignée du panneau",
+      "kind": "custom",
+      "refersTo": "discovery-handle",
+      "description": "Affordance statique : les actions adjustable de VoiceOver/TalkBack ne sont pas simulées par ce bouton HTML. Le contrôle natif expose Réduit, Intermédiaire ou Agrandi. Sur téléphone, l’arrêt intermédiaire vaut min(availableHeight × 0.6, panelHeight), avec panelHeight de 386 pour la liste et 350 pour la fiche ; seule la recherche reste accessible au cran réduit. L’arrêt à 100 % permet la lecture étendue.",
+      "html": "<button class=\"ds-handle\" type=\"button\" aria-label=\"Agrandir le panneau des groupes\"><span></span></button>",
+      "css": ".ds-handle { box-sizing:border-box; display:flex; align-items:center; justify-content:center; width:100%; height:28px; padding:0; border:0; background:transparent; cursor:pointer; } .ds-handle span { width:36px; height:5px; border-radius:3px; background:#E2E6EC; } .ds-handle:hover,.ds-handle:active { opacity:.72; } .ds-handle:focus-visible { outline:2px solid #1765E8; outline-offset:2px; } @media(prefers-color-scheme:dark) { .ds-handle span { background:#354354; } .ds-handle:focus-visible { outline-color:#82B3FF; } }"
+    }
+  ],
+  "narrative": {
+    "northStar": "La carte reste le lieu",
+    "overview": "O Mas La conserve le langage des applications natives de navigation et lui donne une identité de ville : fond vectoriel clair calcaire ou nocturne, volumes simples issus des hauteurs disponibles et bannières attachées aux positions des groupes. La composition A maintient la recherche et la fiche dans un seul panneau. Le bleu porte les actions de l’interface ; la bannière et son emblème portent l’identité du groupe, indépendamment de son statut.\n\nLa densité reste fonctionnelle. Les intitulés français, la typographie du système et les symboles natifs portent l’interface. Le thème suit celui de l’appareil ; les surfaces iOS translucides deviennent opaques lorsque la réduction de transparence est activée.",
+    "keyCharacteristics": [
+      "Carte vectorielle IGN personnalisée, volumes mesurés et panneaux conservant le contexte.",
+      "Fond jour/nuit et couleurs d’identité séparées des statuts de position.",
+      "Texte système dans l’interface, Source Sans Pro sur le fond cartographique, symboles natifs.",
+      "Bannières ancrées au point GPS, source et fraîcheur lisibles sans dépendre de leur couleur."
+    ],
+    "rules": [
+      {
+        "name": "The Action and State Rule",
+        "body": "Les couleurs du groupe identifient sa bannière et son emblème ; elles ne prouvent ni le live ni la fraîcheur. Le vert porte le statut récent, l’ambre l’ancienneté et le texte distingue live, observation et dernier point. Le bleu d’interface conserve son rôle d’action.",
+        "section": "colors"
+      },
+      {
+        "name": "The Native Text Rule",
+        "body": "Conserver la police du système et l’agrandissement des textes de lecture ; limiter à 1.5 les repères et le badge cartographique pour préserver leur empreinte, sans étendre ce plafond à la liste ni à la fiche.",
+        "section": "typography"
+      },
+      {
+        "name": "The Readable Material Rule",
+        "body": "Sur iOS, remplacer le flou par la surface opaque quand la réduction de transparence est demandée.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do utiliser les rôles de palette du thème actif, y compris la couleur de texte dédiée aux actions primaires.",
+      "Do conserver la source et l’âge à côté de la position et nommer explicitement les données de démonstration.",
+      "Do ancrer le pied de la bannière au point GPS et conserver des statuts indépendants de l’identité du groupe.",
+      "Do garder l’attribution IGN accessible et représenter uniquement les hauteurs de bâtiments disponibles.",
+      "Do respecter les zones sûres, le clavier et l’agrandissement du texte lors du placement des surfaces.",
+      "Do employer les symboles natifs et fournir un libellé accessible aux commandes sans texte.",
+      "Do proposer le réglage du panneau par action accessible en complément du glissement."
+    ],
+    "donts": [
+      "Don’t réintroduire la composition de la page carte historique dans cette refonte native.",
+      "Don’t déduire le live ou l’ancienneté d’une couleur d’identité du groupe.",
+      "Don’t inventer un itinéraire interne, une distance ou une heure d’arrivée.",
+      "Don’t compléter les hauteurs inconnues par des volumes décoratifs ou généraliser les emblèmes de démonstration aux groupes réels.",
+      "Don’t présenter un aperçu HTML, une compilation ou une lecture du code comme preuve du rendu et du parcours natifs."
+    ]
+  }
+}
